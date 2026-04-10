@@ -12,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _rememberSession = true;
   bool _obscurePassword = true;
 
@@ -29,313 +30,233 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF1F3F6),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Header con imagen ──
-              _buildHeader(),
-
-              // ── Espacio para el logo que sobresale ──
-              const SizedBox(height: 62),
-
-              // ── Formulario ──
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 26.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Card(
+                elevation: 10,
+                shadowColor: Colors.black12,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                clipBehavior: Clip.antiAlias,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Título
-                    Center(
-                      child: Text(
-                        'Papelería Magic',
-                        style: GoogleFonts.lora(
-                          fontSize: 27,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1A1A2E),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Center(
-                      child: Text(
-                        'SISTEMA ADMINISTRATIVO',
-                        style: GoogleFonts.openSans(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 2.2,
-                          color: const Color(0xFF004D77),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    // ── Label correo ──
-                    Text(
-                      'Correo electrónico',
-                      style: GoogleFonts.openSans(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF244153),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInputField(
-                      controller: _emailController,
-                      hint: 'admin@papeleriamagic.com',
-                      prefixIcon: const _EmailIcon(),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // ── Label contraseña ──
-                    Text(
-                      'Contraseña',
-                      style: GoogleFonts.openSans(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF2D2D2D),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildPasswordField(),
-
-                    const SizedBox(height: 14),
-
-                    // ── Recordar sesión ──
-                    Row(
+                    // ───── HEADER (BANNER + LOGO) ─────
+                    Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.bottomCenter,
                       children: [
                         SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: Checkbox(
-                            value: _rememberSession,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberSession = value ?? false;
-                              });
-                            },
-                            activeColor: const Color(0xFF2B5F8E),
-                            checkColor: Colors.white,
-                            side: const BorderSide(
-                              color: Color(0xFFB0C4D8),
-                              width: 1.5,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                          width: double.infinity,
+                          height: 180,
+                          child: Image.asset(
+                            'assets/images/imagenparalamovil.jpeg',
+                            fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Recordar sesión',
-                          style: GoogleFonts.openSans(
-                            fontSize: 13.5,
-                            color: const Color(0xFF444444),
+
+                        Positioned(
+                          bottom: -50,
+                          child: Container(
+                            width: 110,
+                            height: 110,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border: Border.all(color: Colors.white, width: 4),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: Transform.scale(
+                                scale: 1.4, // 🔥 AJUSTA ENTRE 1.3 - 1.6
+                                child: Image.asset(
+                                  'assets/images/PapeleriaMagicLogo.png',
+                                  fit: BoxFit.cover,
+                                  alignment: Alignment.center,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 60),
 
-                    // ── Botón LOGIN ──
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: _handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1B3D6B),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'LOGIN',
-                              style: GoogleFonts.openSans(
-                                fontSize: 15,
+                    // ───── CONTENIDO ─────
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: Text(
+                              'Papelería Magic',
+                              style: GoogleFonts.lora(
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                letterSpacing: 2.5,
-                                color: Colors.white,
+                                color: const Color(0xFF1A1A2E),
                               ),
                             ),
-                            const SizedBox(width: 10),
-                            const Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // ── Footer ──
-                    Center(
-                      child: RichText(
-                        text: TextSpan(
-                          style: GoogleFonts.openSans(
-                            fontSize: 10,
-                            color: const Color(0xFFBBBBBB),
-                            letterSpacing: 0.8,
                           ),
-                          children: [
-                            const TextSpan(text: 'POWERED BY '),
-                            TextSpan(
-                              text: 'SEYMSOFT',
+                          const SizedBox(height: 5),
+                          Center(
+                            child: Text(
+                              'SISTEMA ADMINISTRATIVO',
                               style: GoogleFonts.openSans(
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF777777),
-                                letterSpacing: 0.8,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 2,
+                                color: const Color(0xFF004D77),
                               ),
                             ),
-                            const TextSpan(text: ' © 2026'),
-                          ],
-                        ),
+                          ),
+
+                          const SizedBox(height: 25),
+
+                          // EMAIL
+                          Text(
+                            'Correo electrónico',
+                            style: GoogleFonts.openSans(fontSize: 13.5),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildInputField(
+                            controller: _emailController,
+                            hint: 'admin@papeleriamagic.com',
+                            icon: Icons.email_outlined,
+                          ),
+
+                          const SizedBox(height: 18),
+
+                          // PASSWORD
+                          Text(
+                            'Contraseña',
+                            style: GoogleFonts.openSans(fontSize: 13.5),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildPasswordField(),
+
+                          const SizedBox(height: 14),
+
+                          // CHECKBOX
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: _rememberSession,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _rememberSession = value ?? false;
+                                  });
+                                },
+                                activeColor: const Color(0xFF2B5F8E),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Recordar sesión',
+                                style: GoogleFonts.openSans(fontSize: 13.5),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // BOTÓN LOGIN
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _handleLogin,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1B3D6B),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text(
+                                'LOGIN',
+                                style: GoogleFonts.openSans(
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
-
-                    const SizedBox(height: 24),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // ── Header con imagen de fondo y logo real sobresaliente ──
-  Widget _buildHeader() {
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Imagen de fondo del header
-        SizedBox(
-          width: double.infinity,
-          height: 190,
-          child: Image.asset(
-            'assets/images/imagenparalamovil.jpeg',
-            fit: BoxFit.cover,
-          ),
-        ),
-
-        // Logo circular con imagen real de la empresa
-        Positioned(
-          bottom: -50,
-          child: Container(
-            width: 110,
-            height: 110,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.transparent,
-              
-            ),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/PapeleriaMagicLogo.png',
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── Campo de texto genérico ──
+  // ───── INPUT EMAIL ─────
   Widget _buildInputField({
     required TextEditingController controller,
     required String hint,
-    required Widget prefixIcon,
-    TextInputType keyboardType = TextInputType.text,
+    required IconData icon,
   }) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF4F6F9),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFDDE3EC), width: 1),
+        border: Border.all(color: const Color(0xFFDDE3EC)),
       ),
       child: TextField(
         controller: controller,
-        keyboardType: keyboardType,
-        style: GoogleFonts.openSans(
-          fontSize: 13.5,
-          color: const Color(0xFF999999),
-        ),
+        style: GoogleFonts.openSans(fontSize: 13.5),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: GoogleFonts.openSans(
-            fontSize: 13.5,
-            color: const Color(0xFFBBBBBB),
-          ),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0),
-            child: prefixIcon,
-          ),
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 10,
-            minHeight: 10,
-          ),
+          hintStyle: const TextStyle(color: Color(0xFFBBBBBB)),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+          prefixIcon: Icon(icon, color: const Color(0xFFBBBBBB)),
         ),
       ),
     );
   }
 
-  // ── Campo contraseña con toggle ──
+  // ───── INPUT PASSWORD ─────
   Widget _buildPasswordField() {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF4F6F9),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFDDE3EC), width: 1),
+        border: Border.all(color: const Color(0xFFDDE3EC)),
       ),
       child: TextField(
         controller: _passwordController,
         obscureText: _obscurePassword,
-        style: GoogleFonts.openSans(
-          fontSize: 13.5,
-          color: const Color(0xFF999999),
-        ),
+        style: GoogleFonts.openSans(fontSize: 13.5),
         decoration: InputDecoration(
           hintText: '••••••••',
-          hintStyle: const TextStyle(
-            fontSize: 16,
-            color: Color(0xFFBBBBBB),
-            letterSpacing: 2,
-          ),
-          prefixIcon: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.0),
-            child: _LockIcon(),
-          ),
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 10,
-            minHeight: 10,
-          ),
+          border: InputBorder.none,
+          prefixIcon:
+              const Icon(Icons.lock_outline, color: Color(0xFFBBBBBB)),
           suffixIcon: IconButton(
             icon: Icon(
               _obscurePassword
-                  ? Icons.remove_red_eye_outlined
+                  ? Icons.visibility_outlined
                   : Icons.visibility_off_outlined,
               color: const Color(0xFFBBBBBB),
-              size: 20,
             ),
             onPressed: () {
               setState(() {
@@ -343,110 +264,8 @@ class _LoginScreenState extends State<LoginScreen> {
               });
             },
           ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(vertical: 15),
         ),
       ),
     );
   }
-}
-
-// ── Ícono sobre ──
-class _EmailIcon extends StatelessWidget {
-  const _EmailIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 20,
-      height: 20,
-      child: CustomPaint(painter: _EnvelopePainter()),
-    );
-  }
-}
-
-class _EnvelopePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFBBBBBB)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..strokeJoin = StrokeJoin.round;
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 2, size.width, size.height - 2),
-        const Radius.circular(2),
-      ),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(0, 2),
-      Offset(size.width / 2, size.height / 2 + 1),
-      paint,
-    );
-    canvas.drawLine(
-      Offset(size.width, 2),
-      Offset(size.width / 2, size.height / 2 + 1),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// ── Ícono candado ──
-class _LockIcon extends StatelessWidget {
-  const _LockIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 20,
-      height: 20,
-      child: CustomPaint(painter: _LockPainter()),
-    );
-  }
-}
-
-class _LockPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFBBBBBB)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          size.width * 0.1,
-          size.height * 0.45,
-          size.width * 0.8,
-          size.height * 0.5,
-        ),
-        const Radius.circular(3),
-      ),
-      paint,
-    );
-    canvas.drawArc(
-      Rect.fromLTWH(
-        size.width * 0.25,
-        size.height * 0.05,
-        size.width * 0.5,
-        size.height * 0.5,
-      ),
-      3.14159,
-      3.14159,
-      false,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
