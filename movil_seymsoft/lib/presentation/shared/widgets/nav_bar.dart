@@ -1,0 +1,528 @@
+import 'package:flutter/material.dart';
+import '../../login/widgets/Login_screen.dart';
+import '../routes.dart';
+import '../../dashboard/pages/dashboard.dart';
+import '../../ventas/pages/ventas_page.dart';
+import '../../compras/pages/compras_pages.dart';
+import '../../ventas/widgets/venta_card.dart';
+import 'header.dart';
+
+// ─────────────────────────────────────────────
+// PUNTO DE ENTRADA DE LA APLICACIÓN
+// Registra todas las rutas nombradas para que
+// Navigator pueda navegar entre pantallas.
+// ─────────────────────────────────────────────
+void main() {
+  runApp(const MyApp());
+}
+
+/// [MyApp] es el widget raíz de la aplicación.
+/// Configura el tema global y el mapa de rutas nombradas.
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Demo Nav',
+      debugShowCheckedModeBanner: false,
+
+      // Tema global de la app — paleta azul oscuro
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1E3A5F),
+        ),
+        useMaterial3: true,
+      ),
+
+      initialRoute: AppRoutes.login,
+      routes: {
+        AppRoutes.login: (_) => const LoginScreen(),
+        AppRoutes.home: (_) => const MainScaffold(),
+        AppRoutes.inicio: (_) => const MainScaffold(),
+        AppRoutes.ventas: (_) => const MainScaffold(),
+        AppRoutes.compras: (_) => const MainScaffold(),
+        AppRoutes.ajustes: (_) => const MainScaffold(),
+      },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// CONSTANTES DE RUTAS
+// Centralizar los nombres de ruta evita errores
+// de tipeo y facilita el mantenimiento.
+// ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+// MODELO DE ÍTEM DE NAVEGACIÓN
+// Encapsula la información de cada pestaña:
+// ícono, etiqueta y ruta destino.
+// ─────────────────────────────────────────────
+
+/// [NavItem] es un objeto de datos (modelo) que describe
+/// cada elemento de la barra de navegación inferior.
+class NavItem {
+  /// Ícono que se muestra debajo de la etiqueta
+  final IconData icon;
+
+  /// Texto visible bajo el ícono
+  final String label;
+
+  /// Ruta nombrada a la que navega este ítem
+  final String route;
+
+  const NavItem({
+    required this.icon,
+    required this.label,
+    required this.route,
+  });
+}
+
+// ─────────────────────────────────────────────
+// SCAFFOLD PRINCIPAL
+// Mantiene el índice seleccionado y renderiza
+// la pantalla activa junto con la barra inferior.
+// ─────────────────────────────────────────────
+
+/// [MainScaffold] es el contenedor principal de la app.
+///
+/// Gestiona:
+/// - El índice de la pestaña activa.
+/// - La lista de destinos de navegación.
+/// - El intercambio de pantallas al tocar un ítem.
+///
+/// Usa [StatefulWidget] porque necesita recordar
+/// qué pestaña está seleccionada entre rebuilds.
+class MainScaffold extends StatefulWidget {
+  const MainScaffold({super.key});
+
+  @override
+  State<MainScaffold> createState() => _MainScaffoldState();
+}
+
+class _MainScaffoldState extends State<MainScaffold> {
+  // Índice de la pestaña actualmente seleccionada.
+  // 0 = Inicio, 1 = Ventas, 2 = Compras, 3 = Ajustes
+  int _selectedIndex = 0;
+
+  // Datos de ventas
+  final List<VentaModel> _ventas = [
+    VentaModel(
+      numeroVenta: '382749105',
+      estado: EstadoVenta.aprobada,
+      cliente: 'Diana Patricia Herrera Ríos',
+      fecha: '05/01/2025',
+      metodoPago: 'Efectivo',
+      total: 37842,
+    ),
+    VentaModel(
+      numeroVenta: '519203847',
+      estado: EstadoVenta.aprobada,
+      cliente: 'Sebastián Felipe Agudelo Torres',
+      vendedor: 'Carlos Andrés Muñoz',
+      fecha: '10/01/2025',
+      metodoPago: 'Transferencia',
+      total: 173145,
+    ),
+    VentaModel(
+      numeroVenta: '293847561',
+      estado: EstadoVenta.anulada,
+      cliente: 'Valentina Morales Fuentes',
+      vendedor: 'Laura Milena Restrepo',
+      fecha: '20/01/2025',
+      metodoPago: 'Efectivo',
+      total: 28322,
+    ),
+    VentaModel(
+      numeroVenta: '847392015',
+      estado: EstadoVenta.espAprobacion,
+      cliente: 'Miguel Ángel Pérez Castañeda',
+      vendedor: 'Isabella Chen Rodríguez',
+      fecha: '25/01/2025',
+      metodoPago: 'Transferencia',
+      total: 243236,
+    ),
+    VentaModel(
+      numeroVenta: '560294817',
+      estado: EstadoVenta.desaprobada,
+      cliente: 'Santiago Alejandro Ruiz Patiño',
+      vendedor: 'Usuario eliminado',
+      fecha: '07/02/2025',
+      metodoPago: 'Crédito',
+      total: 88298,
+    ),
+  ];
+
+  // Datos de compras
+  final List<CompraModel> _compras = [
+    CompraModel(
+      proveedor: 'Papelería el punto escolar',
+      nroFactura: '12345455',
+      cantidadProductos: '8',
+      fecha: '05/03/2025',
+      total: '\$ 1.000.000',
+      completada: true,
+    ),
+    CompraModel(
+      proveedor: 'Ofiexpress Ltda.',
+      nroFactura: '765432111',
+      cantidadProductos: '5',
+      fecha: '05/02/2025',
+      total: '\$ 300.000',
+      completada: false,
+    ),
+    CompraModel(
+      proveedor: 'Papelería el punto escolar',
+      nroFactura: '12345421',
+      cantidadProductos: '8',
+      fecha: '05/01/2025',
+      total: '\$ 1.000.000',
+      completada: true,
+    ),
+    CompraModel(
+      proveedor: 'Arte color suppliers',
+      nroFactura: '92395421',
+      cantidadProductos: '9',
+      fecha: '05/01/2025',
+      total: '\$ 3.000.000',
+      completada: false,
+    ),
+  ];
+
+  /// Lista de pantallas en el mismo orden que los ítems del menú.
+  List<Widget> get _screens => [
+    const DashboardScreen(),
+    VentasPage(ventas: _ventas),
+    ComprasPage(compras: _compras),
+    const AjustesScreen(),
+  ];
+
+  /// Definición de los ítems de navegación.
+  /// El orden aquí debe coincidir con [_screens].
+  static const List<NavItem> _navItems = [
+    NavItem(
+      icon: Icons.home_outlined,
+      label: 'INICIO',
+      route: AppRoutes.inicio,
+    ),
+    NavItem(
+      icon: Icons.show_chart_outlined,
+      label: 'VENTAS',
+      route: AppRoutes.ventas,
+    ),
+    NavItem(
+      icon: Icons.shopping_bag_outlined,
+      label: 'COMPRAS',
+      route: AppRoutes.compras,
+    ),
+    NavItem(
+      icon: Icons.settings_outlined,
+      label: 'AJUSTES',
+      route: AppRoutes.ajustes,
+    ),
+  ];
+
+  /// Callback que se invoca cuando el usuario toca un ítem.
+  /// Actualiza [_selectedIndex] para disparar un rebuild
+  /// y mostrar la pantalla correcta.
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // Encabezado común con nombre, rol y accesos rápidos
+      body: Column(
+        children: [
+          VentasHeader(
+            nombreUsuario: 'Usuario SeymSoft',
+            rol: 'Administrador',
+            onSearch: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Buscar - Próximamente')),
+              );
+            },
+            onNotifications: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notificaciones - Próximamente')),
+              );
+            },
+          ),
+          Expanded(
+            child: _screens[_selectedIndex],
+          ),
+        ],
+      ),
+
+      // La barra de navegación inferior personalizada
+      bottomNavigationBar: AppBottomNavBar(
+        selectedIndex: _selectedIndex,
+        navItems: _navItems,
+        onItemTapped: _onItemTapped,
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// BARRA DE NAVEGACIÓN INFERIOR
+// Widget presentacional puro: recibe datos y
+// callbacks — no maneja estado interno.
+// ─────────────────────────────────────────────
+
+/// [AppBottomNavBar] renderiza la barra de navegación
+/// inferior con el estilo fiel a la imagen de referencia:
+///
+/// - Fondo blanco con sombra sutil en la parte superior.
+/// - Ítem activo en azul oscuro (#1E3A5F) con texto en bold.
+/// - Ítems inactivos en gris (#9E9E9E).
+/// - Separador superior azul oscuro para el ítem activo.
+///
+/// Es un [StatelessWidget] porque no posee estado propio;
+/// toda la lógica de selección vive en [MainScaffold].
+class AppBottomNavBar extends StatelessWidget {
+  /// Índice del ítem actualmente activo
+  final int selectedIndex;
+
+  /// Lista de ítems a renderizar
+  final List<NavItem> navItems;
+
+  /// Función que se llama con el índice del ítem tocado
+  final ValueChanged<int> onItemTapped;
+
+  const AppBottomNavBar({
+    super.key,
+    required this.selectedIndex,
+    required this.navItems,
+    required this.onItemTapped,
+  });
+
+  // Colores extraídos de la imagen de referencia
+  static const Color _activeColor = Color(0xFF1E3A5F);   // Azul oscuro
+  static const Color _inactiveColor = Color(0xFFBDBDBD); // Gris claro
+  static const Color _barBackground = Colors.white;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      // Sombra superior que separa la barra del contenido
+      decoration: const BoxDecoration(
+        color: _barBackground,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 8,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+
+      // SafeArea respeta el home indicator en iPhones
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            // Distribuye los ítems uniformemente en el ancho
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(
+              navItems.length,
+              (index) => _NavBarItem(
+                item: navItems[index],
+                isSelected: index == selectedIndex,
+                activeColor: _activeColor,
+                inactiveColor: _inactiveColor,
+                onTap: () => onItemTapped(index),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// ÍTEM INDIVIDUAL DE LA BARRA
+// Renderiza un solo botón: ícono + etiqueta,
+// con el indicador superior cuando está activo.
+// ─────────────────────────────────────────────
+
+/// [_NavBarItem] representa un botón individual dentro
+/// de la barra de navegación.
+///
+/// Cuando [isSelected] es true:
+/// - Muestra una línea azul en la parte superior.
+/// - Pinta ícono y texto en [activeColor].
+/// - El texto aparece en negrita.
+///
+/// Cuando [isSelected] es false:
+/// - Sin línea superior.
+/// - Ícono y texto en [inactiveColor].
+///
+/// Es privado (prefijo `_`) porque solo lo usa [AppBottomNavBar].
+class _NavBarItem extends StatelessWidget {
+  final NavItem item;
+  final bool isSelected;
+  final Color activeColor;
+  final Color inactiveColor;
+  final VoidCallback onTap;
+
+  const _NavBarItem({
+    required this.item,
+    required this.isSelected,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color color = isSelected ? activeColor : inactiveColor;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque, // Toda el área es tocable
+      child: SizedBox(
+        width: 80,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Indicador superior (línea azul en ítem activo) ──
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 3,
+              width: isSelected ? 40 : 0,
+              decoration: BoxDecoration(
+                color: activeColor,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(2),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // ── Ícono ──
+            Icon(
+              item.icon,
+              size: 24,
+              color: color,
+            ),
+
+            const SizedBox(height: 4),
+
+            // ── Etiqueta de texto ──
+            Text(
+              item.label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight:
+                    isSelected ? FontWeight.w700 : FontWeight.w400,
+                color: color,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═════════════════════════════════════════════
+// PANTALLAS DE DESTINO
+// Cada pantalla es un placeholder sencillo que
+// muestra el nombre de la sección. En producción
+// aquí iría el contenido real de cada módulo.
+// ═════════════════════════════════════════════
+
+/// [AjustesScreen] — Pantalla del módulo de Ajustes.
+/// Configuración de cuenta, preferencias y parámetros del sistema.
+class AjustesScreen extends StatelessWidget {
+  const AjustesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _PlaceholderScreen(
+      title: 'AJUSTES',
+      icon: Icons.settings_outlined,
+      color: Color(0xFF1E3A5F),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// WIDGET PLACEHOLDER REUTILIZABLE
+// Muestra ícono + título centrado. Usado por
+// todas las pantallas destino mientras se
+// desarrolla el contenido real de cada módulo.
+// ─────────────────────────────────────────────
+
+/// [_PlaceholderScreen] es un widget privado y reutilizable
+/// que renderiza una pantalla vacía con ícono y título centrados.
+///
+/// Su propósito es servir como andamiaje (scaffold) mientras
+/// se implementa el contenido real de cada módulo.
+class _PlaceholderScreen extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+
+  const _PlaceholderScreen({
+    required this.title,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1E3A5F),
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+            fontSize: 16,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 72, color: color.withOpacity(0.15)),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: color.withOpacity(0.4),
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Contenido en construcción',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
