@@ -114,6 +114,25 @@ class _MainScaffoldState extends State<MainScaffold> {
       cliente: 'Diana Patricia Herrera Ríos',
       fecha: '05/01/2025',
       metodoPago: 'Efectivo',
+      vendedor: 'Laura Milena Restrepo',
+      productos: [
+        ProductoDetalle(
+          nombre: 'Libreta con lapicero',
+          descripcion: '2 PD > 2 azul, 1 roja',
+          cantidad: 3,
+          valorUnitario: 5000,
+          total: 15000,
+        ),
+        ProductoDetalle(
+          nombre: 'Bolígrafo Kilométrico x12',
+          descripcion: '-',
+          cantidad: 2,
+          valorUnitario: 8400,
+          total: 16800,
+        ),
+      ],
+      subtotal: 31800,
+      iva: 6042,
       total: 37842,
     ),
     VentaModel(
@@ -123,6 +142,24 @@ class _MainScaffoldState extends State<MainScaffold> {
       vendedor: 'Carlos Andrés Muñoz',
       fecha: '10/01/2025',
       metodoPago: 'Transferencia',
+      productos: [
+        ProductoDetalle(
+          nombre: 'Monitor 24"',
+          descripcion: 'LED Full HD',
+          cantidad: 2,
+          valorUnitario: 75000,
+          total: 150000,
+        ),
+        ProductoDetalle(
+          nombre: 'Teclado mecánico',
+          descripcion: 'Switch rojo',
+          cantidad: 1,
+          valorUnitario: 23145,
+          total: 23145,
+        ),
+      ],
+      subtotal: 173145,
+      iva: 0,
       total: 173145,
     ),
     VentaModel(
@@ -132,6 +169,24 @@ class _MainScaffoldState extends State<MainScaffold> {
       vendedor: 'Laura Milena Restrepo',
       fecha: '20/01/2025',
       metodoPago: 'Efectivo',
+      productos: [
+        ProductoDetalle(
+          nombre: 'Cuaderno espiral',
+          descripcion: '100 hojas',
+          cantidad: 5,
+          valorUnitario: 4200,
+          total: 21000,
+        ),
+        ProductoDetalle(
+          nombre: 'Lápiz HB',
+          descripcion: 'Caja x12',
+          cantidad: 2,
+          valorUnitario: 3661,
+          total: 7322,
+        ),
+      ],
+      subtotal: 28322,
+      iva: 0,
       total: 28322,
     ),
     VentaModel(
@@ -141,6 +196,24 @@ class _MainScaffoldState extends State<MainScaffold> {
       vendedor: 'Isabella Chen Rodríguez',
       fecha: '25/01/2025',
       metodoPago: 'Transferencia',
+      productos: [
+        ProductoDetalle(
+          nombre: 'Laptop 14"',
+          descripcion: '16GB RAM, 512GB SSD',
+          cantidad: 1,
+          valorUnitario: 204400,
+          total: 204400,
+        ),
+        ProductoDetalle(
+          nombre: 'Mouse inalámbrico',
+          descripcion: 'Logitech',
+          cantidad: 1,
+          valorUnitario: 38836,
+          total: 38836,
+        ),
+      ],
+      subtotal: 243236,
+      iva: 0,
       total: 243236,
     ),
     VentaModel(
@@ -150,6 +223,17 @@ class _MainScaffoldState extends State<MainScaffold> {
       vendedor: 'Usuario eliminado',
       fecha: '07/02/2025',
       metodoPago: 'Crédito',
+      productos: [
+        ProductoDetalle(
+          nombre: 'Silla ergonómica',
+          descripcion: 'Color negro',
+          cantidad: 1,
+          valorUnitario: 88298,
+          total: 88298,
+        ),
+      ],
+      subtotal: 88298,
+      iva: 0,
       total: 88298,
     ),
   ];

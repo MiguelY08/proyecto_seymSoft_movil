@@ -3,6 +3,50 @@
 import 'package:flutter/material.dart';
 import '../widgets/venta_card.dart';
 
+/// Modelo para un producto dentro de una venta
+class ProductoDetalle {
+  final String nombre;
+  final String descripcion;
+  final int cantidad;
+  final double valorUnitario;
+  final double total;
+
+  const ProductoDetalle({
+    required this.nombre,
+    required this.descripcion,
+    required this.cantidad,
+    required this.valorUnitario,
+    required this.total,
+  });
+}
+
+/// Modelo completo de una venta
+class VentaModel {
+  final String numeroVenta;
+  final EstadoVenta estado;
+  final String cliente;
+  final String? vendedor;
+  final String fecha;
+  final String metodoPago;
+  final double total;
+  final List<ProductoDetalle> productos;
+  final double subtotal;
+  final double iva;
+
+  const VentaModel({
+    required this.numeroVenta,
+    required this.estado,
+    required this.cliente,
+    this.vendedor,
+    required this.fecha,
+    required this.metodoPago,
+    required this.total,
+    required this.productos,
+    required this.subtotal,
+    required this.iva,
+  });
+}
+
 class VentasPage extends StatelessWidget {
   final List<VentaModel> ventas;
 
@@ -61,6 +105,9 @@ class VentasPage extends StatelessWidget {
                   fecha: venta.fecha,
                   metodoPago: venta.metodoPago,
                   total: venta.total,
+                  productos: venta.productos,
+                  subtotal: venta.subtotal,
+                  iva: venta.iva,
                 );
               },
             ),
@@ -69,25 +116,4 @@ class VentasPage extends StatelessWidget {
       ),
     );
   }
-}
-
-// — Modelo de datos
-class VentaModel {
-  final String numeroVenta;
-  final EstadoVenta estado;
-  final String cliente;
-  final String? vendedor;
-  final String fecha;
-  final String metodoPago;
-  final double total;
-
-  const VentaModel({
-    required this.numeroVenta,
-    required this.estado,
-    required this.cliente,
-    this.vendedor,
-    required this.fecha,
-    required this.metodoPago,
-    required this.total,
-  });
 }

@@ -1,10 +1,12 @@
 // venta_card.dart
 
 import 'package:flutter/material.dart';
+import 'ventas_details.dart';
+import '../pages/ventas_page.dart';
 
 enum EstadoVenta { aprobada, anulada, espAprobacion, desaprobada }
 
-class VentaCard extends StatelessWidget {
+class VentaCard extends StatefulWidget {
   final String numeroVenta;
   final EstadoVenta estado;
   final String cliente;
@@ -12,7 +14,9 @@ class VentaCard extends StatelessWidget {
   final String fecha;
   final String metodoPago;
   final double total;
-  final VoidCallback? onToggle;
+  final List<ProductoDetalle> productos;
+  final double subtotal;
+  final double iva;
 
   const VentaCard({
     super.key,
@@ -23,11 +27,26 @@ class VentaCard extends StatelessWidget {
     required this.fecha,
     required this.metodoPago,
     required this.total,
-    this.onToggle,
+    required this.productos,
+    required this.subtotal,
+    required this.iva,
   });
 
+  @override
+  State<VentaCard> createState() => _VentaCardState();
+}
+
+class _VentaCardState extends State<VentaCard> {
+  bool _expanded = false;
+
+  void _toggleExpand() {
+    setState(() {
+      _expanded = !_expanded;
+    });
+  }
+
   _BadgeConfig _getBadgeConfig() {
-    switch (estado) {
+    switch (widget.estado) {
       case EstadoVenta.aprobada:
         return _BadgeConfig('APROBADA', const Color(0xFF2E7D32), const Color(0xFFE8F5E9));
       case EstadoVenta.anulada:
@@ -66,7 +85,7 @@ class VentaCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  numeroVenta,
+                  widget.numeroVenta,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -93,7 +112,7 @@ class VentaCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     GestureDetector(
-                      onTap: onToggle,
+                      onTap: _toggleExpand,
                       child: Container(
                         width: 32,
                         height: 32,
@@ -101,10 +120,12 @@ class VentaCard extends StatelessWidget {
                           color: const Color(0xFFF0F0F0),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
+                        child: Icon(
+                          _expanded
+                              ? Icons.keyboard_arrow_up_rounded
+                              : Icons.keyboard_arrow_down_rounded,
                           size: 20,
-                          color: Color(0xFF666666),
+                          color: const Color(0xFF666666),
                         ),
                       ),
                     ),
@@ -120,11 +141,11 @@ class VentaCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _InfoField(label: 'Cliente', value: cliente),
+                  child: _InfoField(label: 'Cliente', value: widget.cliente),
                 ),
-                if (vendedor != null)
+                if (widget.vendedor != null)
                   Expanded(
-                    child: _InfoField(label: 'Vendedor', value: vendedor!),
+                    child: _InfoField(label: 'Vendedor', value: widget.vendedor!),
                   ),
               ],
             ),
@@ -135,10 +156,10 @@ class VentaCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _InfoField(label: 'Fecha', value: fecha),
+                  child: _InfoField(label: 'Fecha', value: widget.fecha),
                 ),
                 Expanded(
-                  child: _InfoField(label: 'Método Pago', value: metodoPago),
+                  child: _InfoField(label: 'Método Pago', value: widget.metodoPago),
                 ),
               ],
             ),
@@ -163,7 +184,7 @@ class VentaCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '\$ ${_formatTotal(total)}',
+                  '\$ ${_formatTotal(widget.total)}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -172,6 +193,25 @@ class VentaCard extends StatelessWidget {
                 ),
               ],
             ),
+
+            // — Detalle expandido
+            if (_expanded) ...[
+              const SizedBox(height: 16),
+              VentaDetails(
+                venta: VentaModel(
+                  numeroVenta: widget.numeroVenta,
+                  estado: widget.estado,
+                  cliente: widget.cliente,
+                  vendedor: widget.vendedor,
+                  fecha: widget.fecha,
+                  metodoPago: widget.metodoPago,
+                  total: widget.total,
+                  productos: widget.productos,
+                  subtotal: widget.subtotal,
+                  iva: widget.iva,
+                ),
+              ),
+            ],
           ],
         ),
       ),
