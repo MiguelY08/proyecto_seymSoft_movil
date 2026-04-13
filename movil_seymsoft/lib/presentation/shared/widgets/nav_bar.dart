@@ -6,6 +6,7 @@ import '../../ventas/pages/ventas_page.dart';
 import '../../compras/pages/compras_pages.dart';
 import '../../ventas/widgets/venta_card.dart';
 import 'header.dart';
+import '../../../presentation/configuration/pages/profile_page.dart';
 
 // ─────────────────────────────────────────────
 // PUNTO DE ENTRADA DE LA APLICACIÓN
@@ -279,7 +280,7 @@ class _MainScaffoldState extends State<MainScaffold> {
     const DashboardScreen(),
     VentasPage(ventas: _ventas),
     ComprasPage(compras: _compras),
-    const AjustesScreen(),
+    const ProfilePage(),
   ];
 
   /// Definición de los ítems de navegación.
