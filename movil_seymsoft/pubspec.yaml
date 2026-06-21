@@ -7,8 +7,11 @@ environment:
   sdk: ^3.10.8
 
 dependencies:
+  dio: ^5.9.0
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
+  flutter_secure_storage: ^9.2.4
   google_fonts: ^5.0.0
 
 dev_dependencies:

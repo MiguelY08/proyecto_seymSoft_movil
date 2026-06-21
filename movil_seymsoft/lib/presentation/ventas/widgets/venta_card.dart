@@ -17,6 +17,9 @@ class VentaCard extends StatefulWidget {
   final List<ProductoDetalle> productos;
   final double subtotal;
   final double iva;
+  final bool isLoadingDetail;
+  final String? detailError;
+  final Future<void> Function()? onLoadDetail;
 
   const VentaCard({
     super.key,
@@ -30,6 +33,9 @@ class VentaCard extends StatefulWidget {
     required this.productos,
     required this.subtotal,
     required this.iva,
+    this.isLoadingDetail = false,
+    this.detailError,
+    this.onLoadDetail,
   });
 
   @override
@@ -39,22 +45,41 @@ class VentaCard extends StatefulWidget {
 class _VentaCardState extends State<VentaCard> {
   bool _expanded = false;
 
-  void _toggleExpand() {
+  Future<void> _toggleExpand() async {
     setState(() {
       _expanded = !_expanded;
     });
+    if (_expanded && widget.productos.isEmpty) {
+      await widget.onLoadDetail?.call();
+    }
   }
 
   _BadgeConfig _getBadgeConfig() {
     switch (widget.estado) {
       case EstadoVenta.aprobada:
-        return _BadgeConfig('APROBADA', const Color(0xFF2E7D32), const Color(0xFFE8F5E9));
+        return _BadgeConfig(
+          'APROBADA',
+          const Color(0xFF2E7D32),
+          const Color(0xFFE8F5E9),
+        );
       case EstadoVenta.anulada:
-        return _BadgeConfig('ANULADA', const Color(0xFFC62828), const Color(0xFFFFEBEE));
+        return _BadgeConfig(
+          'ANULADA',
+          const Color(0xFFC62828),
+          const Color(0xFFFFEBEE),
+        );
       case EstadoVenta.espAprobacion:
-        return _BadgeConfig('ESP. APROBACIÓN', const Color(0xFFE65100), const Color(0xFFFFF3E0));
+        return _BadgeConfig(
+          'ESP. APROBACIÓN',
+          const Color(0xFFE65100),
+          const Color(0xFFFFF3E0),
+        );
       case EstadoVenta.desaprobada:
-        return _BadgeConfig('DESAPROBADA', const Color(0xFFC62828), const Color(0xFFFFEBEE));
+        return _BadgeConfig(
+          'DESAPROBADA',
+          const Color(0xFFC62828),
+          const Color(0xFFFFEBEE),
+        );
     }
   }
 
@@ -95,7 +120,10 @@ class _VentaCardState extends State<VentaCard> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: badge.bgColor,
                         borderRadius: BorderRadius.circular(20),
@@ -145,7 +173,10 @@ class _VentaCardState extends State<VentaCard> {
                 ),
                 if (widget.vendedor != null)
                   Expanded(
-                    child: _InfoField(label: 'Vendedor', value: widget.vendedor!),
+                    child: _InfoField(
+                      label: 'Vendedor',
+                      value: widget.vendedor!,
+                    ),
                   ),
               ],
             ),
@@ -159,7 +190,10 @@ class _VentaCardState extends State<VentaCard> {
                   child: _InfoField(label: 'Fecha', value: widget.fecha),
                 ),
                 Expanded(
-                  child: _InfoField(label: 'Método Pago', value: widget.metodoPago),
+                  child: _InfoField(
+                    label: 'Método Pago',
+                    value: widget.metodoPago,
+                  ),
                 ),
               ],
             ),
@@ -197,20 +231,33 @@ class _VentaCardState extends State<VentaCard> {
             // — Detalle expandido
             if (_expanded) ...[
               const SizedBox(height: 16),
-              VentaDetails(
-                venta: VentaModel(
-                  numeroVenta: widget.numeroVenta,
-                  estado: widget.estado,
-                  cliente: widget.cliente,
-                  vendedor: widget.vendedor,
-                  fecha: widget.fecha,
-                  metodoPago: widget.metodoPago,
-                  total: widget.total,
-                  productos: widget.productos,
-                  subtotal: widget.subtotal,
-                  iva: widget.iva,
+              if (widget.isLoadingDetail)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (widget.detailError != null)
+                _DetailError(
+                  message: widget.detailError!,
+                  onRetry: widget.onLoadDetail,
+                )
+              else
+                VentaDetails(
+                  venta: VentaModel(
+                    numeroVenta: widget.numeroVenta,
+                    estado: widget.estado,
+                    cliente: widget.cliente,
+                    vendedor: widget.vendedor,
+                    fecha: widget.fecha,
+                    metodoPago: widget.metodoPago,
+                    total: widget.total,
+                    productos: widget.productos,
+                    subtotal: widget.subtotal,
+                    iva: widget.iva,
+                  ),
                 ),
-              ),
             ],
           ],
         ),
@@ -269,4 +316,25 @@ class _BadgeConfig {
   final Color textColor;
   final Color bgColor;
   const _BadgeConfig(this.label, this.textColor, this.bgColor);
+}
+
+class _DetailError extends StatelessWidget {
+  const _DetailError({required this.message, this.onRetry});
+
+  final String message;
+  final Future<void> Function()? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.red),
+        ),
+        TextButton(onPressed: onRetry, child: const Text('Reintentar')),
+      ],
+    );
+  }
 }
