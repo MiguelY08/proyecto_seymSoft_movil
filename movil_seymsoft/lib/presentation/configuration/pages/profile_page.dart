@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../core/constants/company_constants.dart';
+import '../../auth/cubit/auth_cubit.dart';
 import '../widgets/profile_item.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -6,19 +10,20 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthCubit>().state;
+    final profile = authState.profile;
+    final isLoading = authState.status == AuthStatus.loading;
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
 
       body: Column(
         children: [
-
           // 🔵 HEADER
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 40),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1E3A5F),
-            ),
+            decoration: const BoxDecoration(color: Color(0xFF1E3A5F)),
             child: const Center(
               child: Text(
                 "AJUSTES",
@@ -36,24 +41,24 @@ class ProfilePage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-
                 // FOTO + NOMBRE
                 Column(
-                  children: const [
-                    CircleAvatar(
+                  children: [
+                    const CircleAvatar(
                       radius: 40,
-                      backgroundImage:
-                          AssetImage("assets/images/profile.jpg"),
+                      backgroundImage: AssetImage("assets/images/profile.jpg"),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
-                      "Emmanuel Muñoz",
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold),
+                      profile?.user.fullName ?? 'Administrador',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     Text(
-                      "Administrador",
-                      style: TextStyle(color: Colors.grey),
+                      profile?.role.name ?? 'Administrator',
+                      style: const TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
@@ -61,28 +66,31 @@ class ProfilePage extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // DATOS
-                const ProfileItem(
+                ProfileItem(
                   icon: Icons.email,
                   title: "Correo",
-                  value: "admin@seymsoft.com",
+                  value: profile?.user.email ?? 'Sin correo',
                 ),
 
-                const ProfileItem(
+                ProfileItem(
                   icon: Icons.phone,
                   title: "Teléfono",
-                  value: "+57 300 123 4567",
+                  value: profile?.user.phone ?? 'Sin teléfono',
                 ),
 
                 const ProfileItem(
                   icon: Icons.business,
-                  title: "Negocio",
-                  value: "SeymSoft",
+                  title: "Empresa",
+                  value: CompanyConstants.name,
                 ),
 
                 const ProfileItem(
                   icon: Icons.location_on,
                   title: "Dirección",
-                  value: "Medellín, Colombia",
+                  value:
+                      "${CompanyConstants.address}\n"
+                      "${CompanyConstants.location}\n"
+                      "${CompanyConstants.city}",
                 ),
 
                 const SizedBox(height: 30),
@@ -98,14 +106,16 @@ class ProfilePage extends StatelessWidget {
                     ),
                     backgroundColor: Colors.red[50],
                   ),
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/login',
-                      (route) => false,
-                    );
-                  },
-                  icon: const Icon(Icons.logout, size: 18),
+                  onPressed: isLoading
+                      ? null
+                      : () => context.read<AuthCubit>().logout(),
+                  icon: isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.logout, size: 18),
                   label: const Text(
                     "Cerrar sesión",
                     style: TextStyle(fontWeight: FontWeight.w500),
@@ -113,7 +123,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
