@@ -28,7 +28,7 @@ class CompraCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -55,8 +55,10 @@ class CompraCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: completada
                       ? const Color(0xFFD4EDDA)
@@ -89,10 +91,7 @@ class CompraCard extends StatelessWidget {
                   children: [
                     const Text(
                       'Nro. Factura',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF8E8E93),
-                      ),
+                      style: TextStyle(fontSize: 11, color: Color(0xFF8E8E93)),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -112,10 +111,7 @@ class CompraCard extends StatelessWidget {
                   children: [
                     const Text(
                       'Cantidad de productos',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF8E8E93),
-                      ),
+                      style: TextStyle(fontSize: 11, color: Color(0xFF8E8E93)),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -137,10 +133,7 @@ class CompraCard extends StatelessWidget {
           // ── Fecha ──
           const Text(
             'Fecha',
-            style: TextStyle(
-              fontSize: 11,
-              color: Color(0xFF8E8E93),
-            ),
+            style: TextStyle(fontSize: 11, color: Color(0xFF8E8E93)),
           ),
           const SizedBox(height: 2),
           Text(

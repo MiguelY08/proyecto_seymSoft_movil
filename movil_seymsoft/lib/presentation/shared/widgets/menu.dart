@@ -12,7 +12,7 @@ class Menu extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -71,18 +71,13 @@ class _MenuItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 24,
-            color: isSelected ? activeColor : inactiveColor,
-          ),
+          Icon(icon, size: 24, color: isSelected ? activeColor : inactiveColor),
           const SizedBox(height: 3),
           Text(
             label,
             style: TextStyle(
               fontSize: 9,
-              fontWeight:
-                  isSelected ? FontWeight.w700 : FontWeight.w400,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
               color: isSelected ? activeColor : inactiveColor,
               letterSpacing: 0.3,
             ),

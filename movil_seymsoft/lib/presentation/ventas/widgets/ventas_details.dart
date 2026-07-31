@@ -1,7 +1,7 @@
 // ventas_details.dart
 
 import 'package:flutter/material.dart';
-import '../pages/ventas_page.dart';  // Importa VentaModel y ProductoDetalle
+import '../pages/ventas_page.dart'; // Importa VentaModel y ProductoDetalle
 
 /// Widget que muestra el detalle expandido de una venta
 class VentaDetails extends StatelessWidget {
@@ -41,7 +41,7 @@ class VentaDetails extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: venta.productos.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            separatorBuilder: (_, _) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final producto = venta.productos[index];
               return _ProductoItem(producto: producto);
@@ -118,10 +118,7 @@ class _ProductoItem extends StatelessWidget {
             padding: const EdgeInsets.only(top: 2),
             child: Text(
               producto.descripcion,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF9E9E9E),
-              ),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E)),
             ),
           ),
         const SizedBox(height: 8),
@@ -172,11 +169,7 @@ class _InfoRow extends StatelessWidget {
   final String value;
   final TextStyle? valueStyle;
 
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    this.valueStyle,
-  });
+  const _InfoRow({required this.label, required this.value, this.valueStyle});
 
   @override
   Widget build(BuildContext context) {
@@ -194,7 +187,8 @@ class _InfoRow extends StatelessWidget {
         ),
         Text(
           value,
-          style: valueStyle ??
+          style:
+              valueStyle ??
               const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -225,10 +219,7 @@ class _InfoField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 10,
-            color: Color(0xFF9E9E9E),
-          ),
+          style: const TextStyle(fontSize: 10, color: Color(0xFF9E9E9E)),
         ),
         const SizedBox(height: 2),
         Text(

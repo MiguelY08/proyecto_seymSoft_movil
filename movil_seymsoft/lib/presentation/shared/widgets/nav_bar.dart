@@ -545,14 +545,14 @@ class _PlaceholderScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 72, color: color.withOpacity(0.15)),
+            Icon(icon, size: 72, color: color.withValues(alpha: 0.15)),
             const SizedBox(height: 16),
             Text(
               title,
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.4),
                 letterSpacing: 2,
               ),
             ),
