@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
-import '../../../data/repositories/auth_repository.dart';
-import '../../shared/routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,11 +13,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  // final _authRepository = AuthRepository();
 
   bool _rememberSession = true;
   bool _obscurePassword = true;
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -28,14 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-<<<<<<< HEAD
-  Future<void> _handleLogin() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa correo y contraseña')),
-=======
   void _handleLogin() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -43,24 +31,15 @@ class _LoginScreenState extends State<LoginScreen> {
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Ingresa el correo y la contraseña')),
->>>>>>> c59aa504a86e6edee56620158e4457253479e51d
       );
       return;
     }
 
-<<<<<<< HEAD
     context.read<AuthCubit>().login(
-      email: email,
-      password: password,
-      rememberSession: _rememberSession,
-    );
-=======
-    context.read<AuthCubit>().login(
-      email: email,
-      password: password,
-      rememberSession: _rememberSession,
-    );
->>>>>>> c59aa504a86e6edee56620158e4457253479e51d
+          email: email,
+          password: password,
+          rememberSession: _rememberSession,
+        );
   }
 
   @override
@@ -78,325 +57,186 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       },
-      builder: (context, state) => Scaffold(
-        backgroundColor: const Color(0xFFF1F3F6),
-        body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Card(
-                  elevation: 10,
-                  shadowColor: Colors.black12,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      // ───── HEADER (BANNER + LOGO) ─────
-                      Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.bottomCenter,
-                        children: [
-                          SizedBox(
-                            width: double.infinity,
-                            height: 180,
-                            child: Image.asset(
-                              'assets/images/imagenparalamovil.jpeg',
-                              fit: BoxFit.cover,
+      builder: (context, state) {
+        final isLoading = state.status == AuthStatus.loading;
+        return Scaffold(
+          backgroundColor: const Color(0xFFF1F3F6),
+          body: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Card(
+                    elevation: 10,
+                    shadowColor: Colors.black12,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            SizedBox(
+                              width: double.infinity,
+                              height: 180,
+                              child: Image.asset(
+                                'assets/images/imagenparalamovil.jpeg',
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-
-                          Positioned(
-                            bottom: -50,
-                            child: Container(
-                              width: 110,
-                              height: 110,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(
+                            Positioned(
+                              bottom: -50,
+                              child: Container(
+                                width: 110,
+                                height: 110,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
                                   color: Colors.white,
-                                  width: 4,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 4,
+                                  ),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 12,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 12,
-                                    offset: Offset(0, 4),
+                                child: ClipOval(
+                                  child: Transform.scale(
+                                    scale: 1.4,
+                                    child: Image.asset(
+                                      'assets/images/PapeleriaMagicLogo.png',
+                                      fit: BoxFit.cover,
+                                      alignment: Alignment.center,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 60),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 10,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: Text(
+                                  'Papelería Magic',
+                                  style: GoogleFonts.lora(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF1A1A2E),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Center(
+                                child: Text(
+                                  'SISTEMA ADMINISTRATIVO',
+                                  style: GoogleFonts.openSans(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 2,
+                                    color: const Color(0xFF004D77),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 25),
+                              Text(
+                                'Correo electrónico',
+                                style: GoogleFonts.openSans(fontSize: 13.5),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildInputField(
+                                controller: _emailController,
+                                hint: 'admin@papeleriamagic.com',
+                                icon: Icons.email_outlined,
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                'Contraseña',
+                                style: GoogleFonts.openSans(fontSize: 13.5),
+                              ),
+                              const SizedBox(height: 8),
+                              _buildPasswordField(),
+                              const SizedBox(height: 14),
+                              Row(
+                                children: [
+                                  Checkbox(
+                                    value: _rememberSession,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _rememberSession = value ?? false;
+                                      });
+                                    },
+                                    activeColor: const Color(0xFF2B5F8E),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Recordar sesión',
+                                    style: GoogleFonts.openSans(fontSize: 13.5),
                                   ),
                                 ],
                               ),
-                              child: ClipOval(
-                                child: Transform.scale(
-                                  scale: 1.4, // 🔥 AJUSTA ENTRE 1.3 - 1.6
-                                  child: Image.asset(
-                                    'assets/images/PapeleriaMagicLogo.png',
-                                    fit: BoxFit.cover,
-                                    alignment: Alignment.center,
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: isLoading ? null : _handleLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1B3D6B),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 60),
-
-                      // ───── CONTENIDO ─────
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Center(
-                              child: Text(
-                                'Papelería Magic',
-                                style: GoogleFonts.lora(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF1A1A2E),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Center(
-                              child: Text(
-                                'SISTEMA ADMINISTRATIVO',
-                                style: GoogleFonts.openSans(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 2,
-                                  color: const Color(0xFF004D77),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 25),
-
-                            // EMAIL
-                            Text(
-                              'Correo electrónico',
-                              style: GoogleFonts.openSans(fontSize: 13.5),
-                            ),
-                            const SizedBox(height: 8),
-                            _buildInputField(
-                              controller: _emailController,
-                              hint: 'admin@papeleriamagic.com',
-                              icon: Icons.email_outlined,
-                            ),
-
-                            const SizedBox(height: 18),
-
-                            // PASSWORD
-                            Text(
-                              'Contraseña',
-                              style: GoogleFonts.openSans(fontSize: 13.5),
-                            ),
-                            const SizedBox(height: 8),
-                            _buildPasswordField(),
-
-                            const SizedBox(height: 14),
-
-                            // CHECKBOX
-                            Row(
-                              children: [
-                                Checkbox(
-                                  value: _rememberSession,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _rememberSession = value ?? false;
-                                    });
-                                  },
-                                  activeColor: const Color(0xFF2B5F8E),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Recordar sesión',
-                                  style: GoogleFonts.openSans(fontSize: 13.5),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // BOTÓN LOGIN
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed: state.status == AuthStatus.loading
-                                    ? null
-                                    : _handleLogin,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1B3D6B),
-                                  elevation: 2,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: state.status == AuthStatus.loading
-                                    ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
+                                  child: isLoading
+                                      ? const SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : Text(
+                                          'LOGIN',
+                                          style: GoogleFonts.openSans(
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 2,
+                                            color: Colors.white,
+                                          ),
                                         ),
-                                      )
-                                    : Text(
-                                        'LOGIN',
-                                        style: GoogleFonts.openSans(
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 2,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                ),
                               ),
-                            ),
-
-                            const SizedBox(height: 20),
-                          ],
-                        ),
-<<<<<<< HEAD
-                      ],
-                    ),
-
-                    const SizedBox(height: 60),
-
-                    // ───── CONTENIDO ─────
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Text(
-                              'Papelería Magic',
-                              style: GoogleFonts.lora(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF1A1A2E),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Center(
-                            child: Text(
-                              'SISTEMA ADMINISTRATIVO',
-                              style: GoogleFonts.openSans(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 2,
-                                color: const Color(0xFF004D77),
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 25),
-
-                          // EMAIL
-                          Text(
-                            'Correo electrónico',
-                            style: GoogleFonts.openSans(fontSize: 13.5),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInputField(
-                            controller: _emailController,
-                            hint: 'admin@papeleriamagic.com',
-                            icon: Icons.email_outlined,
-                          ),
-
-                          const SizedBox(height: 18),
-
-                          // PASSWORD
-                          Text(
-                            'Contraseña',
-                            style: GoogleFonts.openSans(fontSize: 13.5),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildPasswordField(),
-
-                          const SizedBox(height: 14),
-
-                          // CHECKBOX
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: _rememberSession,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _rememberSession = value ?? false;
-                                  });
-                                },
-                                activeColor: const Color(0xFF2B5F8E),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Recordar sesión',
-                                style: GoogleFonts.openSans(fontSize: 13.5),
-                              ),
+                              const SizedBox(height: 20),
                             ],
                           ),
-
-                          const SizedBox(height: 20),
-
-                          // BOTÓN LOGIN
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF1B3D6B),
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : Text(
-                                      'LOGIN',
-                                      style: GoogleFonts.openSans(
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 2,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-                        ],
-=======
->>>>>>> c59aa504a86e6edee56620158e4457253479e51d
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  // ───── INPUT EMAIL ─────
   Widget _buildInputField({
     required TextEditingController controller,
     required String hint,
@@ -424,7 +264,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ───── INPUT PASSWORD ─────
   Widget _buildPasswordField() {
     return Container(
       decoration: BoxDecoration(
