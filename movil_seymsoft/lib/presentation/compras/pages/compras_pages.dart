@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/compra_card.dart';
 
-class ComprasPage extends StatelessWidget {
+class ComprasPage extends StatefulWidget {
   final List<CompraModel> compras;
 
   const ComprasPage({
@@ -12,7 +12,24 @@ class ComprasPage extends StatelessWidget {
   });
 
   @override
+  State<ComprasPage> createState() => _ComprasPageState();
+}
+
+class _ComprasPageState extends State<ComprasPage> {
+  static const int _pageSize = 3;
+  int _visibleCount = _pageSize;
+
+  void _verMas() {
+    setState(() {
+      _visibleCount = (_visibleCount + _pageSize).clamp(0, widget.compras.length);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final visibleCompras = widget.compras.take(_visibleCount).toList();
+    final hayMas = _visibleCount < widget.compras.length;
+
     return Container(
       color: const Color(0xFFF5F5F5),
       child: Column(
@@ -35,7 +52,7 @@ class ComprasPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Mostrando ${compras.length} de ${compras.length} compras',
+                  'Mostrando ${ visibleCompras.length} de ${widget.compras.length} compras',
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF9E9E9E),
@@ -50,19 +67,17 @@ class ComprasPage extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.only(bottom: 16),
-              itemCount: compras.length + 1, // — +1 para el botón al final
+              itemCount: visibleCompras.length + (hayMas ? 1 : 0),
               itemBuilder: (context, index) {
-                // — Último ítem: botón Ver Más
-                if (index == compras.length) {
+                // — Último ítem: botón Ver Más (solo si hay más compras)
+                if (hayMas && index == visibleCompras.length) {
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                     child: SizedBox(
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: implementar paginación
-                        },
+                        onPressed: _verMas,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1B3A6B),
                           foregroundColor: Colors.white,
@@ -85,7 +100,7 @@ class ComprasPage extends StatelessWidget {
                 }
 
                 // — Cards normales
-                final compra = compras[index];
+                final compra = visibleCompras[index];
                 return CompraCard(
                   proveedor: compra.proveedor,
                   nroFactura: compra.nroFactura,

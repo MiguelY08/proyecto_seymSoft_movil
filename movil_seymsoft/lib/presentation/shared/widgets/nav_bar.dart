@@ -1,73 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../login/widgets/Login_screen.dart';
 import '../routes.dart';
 import '../../dashboard/pages/dashboard.dart';
+import '../../ventas/pages/sales_api_page.dart';
+import '../../login/widgets/Login_screen.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../ventas/pages/ventas_page.dart';
+import '../../compras/pages/purchases_api_page.dart';
 import '../../compras/pages/compras_pages.dart';
 import '../../ventas/widgets/venta_card.dart';
 import 'header.dart';
 import '../../../presentation/configuration/pages/profile_page.dart';
-
-// ─────────────────────────────────────────────
-// PUNTO DE ENTRADA DE LA APLICACIÓN
-// Registra todas las rutas nombradas para que
-// Navigator pueda navegar entre pantallas.
-// ─────────────────────────────────────────────
-final GlobalKey<NavigatorState> _appNavigatorKey = GlobalKey<NavigatorState>();
-
-void main() {
-  runApp(const MyApp());
-}
-
-/// [MyApp] es el widget raíz de la aplicación.
-/// Configura el tema global y el mapa de rutas nombradas.
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<AuthCubit>(
-      create: (_) => AuthCubit(AuthRepository())..restoreSession(),
-      child: BlocListener<AuthCubit, AuthState>(
-        listener: (context, state) {
-          if (state.status == AuthStatus.unauthenticated) {
-            _appNavigatorKey.currentState?.pushNamedAndRemoveUntil(
-              AppRoutes.login,
-              (route) => false,
-            );
-          }
-        },
-        child: MaterialApp(
-          navigatorKey: _appNavigatorKey,
-          title: 'Demo Nav',
-          debugShowCheckedModeBanner: false,
-
-          // Tema global de la app — paleta azul oscuro
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF1E3A5F),
-            ),
-            useMaterial3: true,
-          ),
-
-          initialRoute: AppRoutes.login,
-          routes: {
-            AppRoutes.login: (_) => const LoginScreen(),
-            AppRoutes.home: (_) => const MainScaffold(),
-            AppRoutes.inicio: (_) => const MainScaffold(),
-            AppRoutes.ventas: (_) => const MainScaffold(),
-            AppRoutes.compras: (_) => const MainScaffold(),
-            AppRoutes.ajustes: (_) => const MainScaffold(),
-          },
-        ),
-      ),
-    );
-  }
-}
+import '../../auth/cubit/auth_cubit.dart';
 
 // ─────────────────────────────────────────────
 // CONSTANTES DE RUTAS
@@ -93,11 +38,7 @@ class NavItem {
   /// Ruta nombrada a la que navega este ítem
   final String route;
 
-  const NavItem({
-    required this.icon,
-    required this.label,
-    required this.route,
-  });
+  const NavItem({required this.icon, required this.label, required this.route});
 }
 
 // ─────────────────────────────────────────────
@@ -128,6 +69,9 @@ class _MainScaffoldState extends State<MainScaffold> {
   int _selectedIndex = 0;
 
   // Datos de ventas
+  // TODO: eliminar estos datos de demostración cuando se retiren los entrypoints
+  // independientes del módulo de ventas.
+  // ignore: unused_field
   final List<VentaModel> _ventas = [
     VentaModel(
       numeroVenta: '382749105',
@@ -260,6 +204,9 @@ class _MainScaffoldState extends State<MainScaffold> {
   ];
 
   // Datos de compras
+  // TODO: eliminar estos datos de demostración cuando se retiren los entrypoints
+  // independientes del módulo de compras.
+  // ignore: unused_field
   final List<CompraModel> _compras = [
     CompraModel(
       proveedor: 'Papelería el punto escolar',
@@ -298,8 +245,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   /// Lista de pantallas en el mismo orden que los ítems del menú.
   List<Widget> get _screens => [
     const DashboardScreen(),
-    VentasPage(ventas: _ventas),
-    ComprasPage(compras: _compras),
+    const SalesApiPage(),
+    const PurchasesApiPage(),
     const ProfilePage(),
   ];
 
@@ -339,13 +286,15 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final profile = context.watch<AuthCubit>().state.profile;
+
     return Scaffold(
       // Encabezado común con nombre, rol y accesos rápidos
       body: Column(
         children: [
           VentasHeader(
-            nombreUsuario: 'Usuario SeymSoft',
-            rol: 'Administrador',
+            nombreUsuario: profile?.user.fullName ?? 'Administrador',
+            rol: profile?.role.name ?? 'Administrator',
             onSearch: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Buscar - Próximamente')),
@@ -357,9 +306,7 @@ class _MainScaffoldState extends State<MainScaffold> {
               );
             },
           ),
-          Expanded(
-            child: _screens[_selectedIndex],
-          ),
+          Expanded(child: _screens[_selectedIndex]),
         ],
       ),
 
@@ -407,7 +354,7 @@ class AppBottomNavBar extends StatelessWidget {
   });
 
   // Colores extraídos de la imagen de referencia
-  static const Color _activeColor = Color(0xFF1E3A5F);   // Azul oscuro
+  static const Color _activeColor = Color(0xFF1E3A5F); // Azul oscuro
   static const Color _inactiveColor = Color(0xFFBDBDBD); // Gris claro
   static const Color _barBackground = Colors.white;
 
@@ -513,11 +460,7 @@ class _NavBarItem extends StatelessWidget {
             const SizedBox(height: 8),
 
             // ── Ícono ──
-            Icon(
-              item.icon,
-              size: 24,
-              color: color,
-            ),
+            Icon(item.icon, size: 24, color: color),
 
             const SizedBox(height: 4),
 
@@ -526,8 +469,7 @@ class _NavBarItem extends StatelessWidget {
               item.label,
               style: TextStyle(
                 fontSize: 10,
-                fontWeight:
-                    isSelected ? FontWeight.w700 : FontWeight.w400,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                 color: color,
                 letterSpacing: 0.5,
               ),
@@ -620,10 +562,7 @@ class _PlaceholderScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'Contenido en construcción',
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade400,
-              ),
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
             ),
           ],
         ),

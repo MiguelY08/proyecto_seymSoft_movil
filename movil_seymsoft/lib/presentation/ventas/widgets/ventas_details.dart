@@ -72,7 +72,7 @@ class VentaDetails extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           _InfoRow(
-            label: 'IVA (19%)',
+            label: 'IVA',
             value: _formatMoneda(venta.iva),
             valueStyle: const TextStyle(fontSize: 14),
           ),
