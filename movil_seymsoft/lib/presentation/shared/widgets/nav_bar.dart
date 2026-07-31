@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../login/widgets/Login_screen.dart';
 import '../routes.dart';
 import '../../dashboard/pages/dashboard.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../auth/cubit/auth_cubit.dart';
 import '../../ventas/pages/ventas_page.dart';
 import '../../compras/pages/compras_pages.dart';
 import '../../ventas/widgets/venta_card.dart';
@@ -13,6 +17,8 @@ import '../../../presentation/configuration/pages/profile_page.dart';
 // Registra todas las rutas nombradas para que
 // Navigator pueda navegar entre pantallas.
 // ─────────────────────────────────────────────
+final GlobalKey<NavigatorState> _appNavigatorKey = GlobalKey<NavigatorState>();
+
 void main() {
   runApp(const MyApp());
 }
@@ -24,27 +30,41 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Demo Nav',
-      debugShowCheckedModeBanner: false,
+    return BlocProvider<AuthCubit>(
+      create: (_) => AuthCubit(AuthRepository())..restoreSession(),
+      child: BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state.status == AuthStatus.unauthenticated) {
+            _appNavigatorKey.currentState?.pushNamedAndRemoveUntil(
+              AppRoutes.login,
+              (route) => false,
+            );
+          }
+        },
+        child: MaterialApp(
+          navigatorKey: _appNavigatorKey,
+          title: 'Demo Nav',
+          debugShowCheckedModeBanner: false,
 
-      // Tema global de la app — paleta azul oscuro
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E3A5F),
+          // Tema global de la app — paleta azul oscuro
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF1E3A5F),
+            ),
+            useMaterial3: true,
+          ),
+
+          initialRoute: AppRoutes.login,
+          routes: {
+            AppRoutes.login: (_) => const LoginScreen(),
+            AppRoutes.home: (_) => const MainScaffold(),
+            AppRoutes.inicio: (_) => const MainScaffold(),
+            AppRoutes.ventas: (_) => const MainScaffold(),
+            AppRoutes.compras: (_) => const MainScaffold(),
+            AppRoutes.ajustes: (_) => const MainScaffold(),
+          },
         ),
-        useMaterial3: true,
       ),
-
-      initialRoute: AppRoutes.login,
-      routes: {
-        AppRoutes.login: (_) => const LoginScreen(),
-        AppRoutes.home: (_) => const MainScaffold(),
-        AppRoutes.inicio: (_) => const MainScaffold(),
-        AppRoutes.ventas: (_) => const MainScaffold(),
-        AppRoutes.compras: (_) => const MainScaffold(),
-        AppRoutes.ajustes: (_) => const MainScaffold(),
-      },
     );
   }
 }

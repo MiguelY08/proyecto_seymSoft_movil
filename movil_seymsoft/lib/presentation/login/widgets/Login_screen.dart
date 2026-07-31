@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../data/repositories/auth_repository.dart';
 import '../../shared/routes.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,9 +13,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _authRepository = AuthRepository();
 
   bool _rememberSession = true;
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -23,8 +26,33 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() {
-    Navigator.pushReplacementNamed(context, AppRoutes.home);
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa correo y contraseña')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      await _authRepository.login(
+        email: email,
+        password: password,
+        rememberSession: _rememberSession,
+      );
+      if (mounted) Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } on AuthException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -176,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: _handleLogin,
+                              onPressed: _isLoading ? null : _handleLogin,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF1B3D6B),
                                 elevation: 2,
@@ -184,14 +212,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: Text(
-                                'LOGIN',
-                                style: GoogleFonts.openSans(
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 2,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(
+                                      'LOGIN',
+                                      style: GoogleFonts.openSans(
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
                           ),
 
