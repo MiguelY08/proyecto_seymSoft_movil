@@ -12,6 +12,6 @@ class ApiConfig {
       return _configuredBaseUrl;
     }
 
-    return kIsWeb ? 'http://localhost:3000/api' : 'http://10.0.2.2:3000/api';
+    return kIsWeb ? 'http://127.0.0.1:3000/api' : 'http://10.0.2.2:3000/api';
   }
 }

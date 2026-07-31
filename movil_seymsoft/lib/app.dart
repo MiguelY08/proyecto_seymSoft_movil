@@ -8,7 +8,7 @@ import 'data/repositories/purchases_repository.dart';
 import 'data/repositories/sales_repository.dart';
 import 'presentation/auth/cubit/auth_cubit.dart';
 import 'presentation/compras/cubit/purchases_cubit.dart';
-import 'presentation/login/widgets/Login_screen.dart';
+import 'presentation/login/widgets/login_screen.dart';
 import 'presentation/shared/widgets/nav_bar.dart';
 import 'presentation/ventas/cubit/sales_cubit.dart';
 

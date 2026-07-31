@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -136,10 +135,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             Center(
                               child: Text(
                                 'Papelería Magic',
-                                style: GoogleFonts.lora(
+                                style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF1A1A2E),
+                                  color: Color(0xFF1A1A2E),
                                 ),
                               ),
                             ),
@@ -147,11 +146,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             Center(
                               child: Text(
                                 'SISTEMA ADMINISTRATIVO',
-                                style: GoogleFonts.openSans(
+                                style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 2,
-                                  color: const Color(0xFF004D77),
+                                  color: Color(0xFF004D77),
                                 ),
                               ),
                             ),
@@ -159,9 +158,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 25),
 
                             // EMAIL
-                            Text(
+                            const Text(
                               'Correo electrónico',
-                              style: GoogleFonts.openSans(fontSize: 13.5),
+                              style: TextStyle(fontSize: 13.5),
                             ),
                             const SizedBox(height: 8),
                             _buildInputField(
@@ -173,9 +172,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 18),
 
                             // PASSWORD
-                            Text(
+                            const Text(
                               'Contraseña',
-                              style: GoogleFonts.openSans(fontSize: 13.5),
+                              style: TextStyle(fontSize: 13.5),
                             ),
                             const SizedBox(height: 8),
                             _buildPasswordField(),
@@ -195,9 +194,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   activeColor: const Color(0xFF2B5F8E),
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
+                                const Text(
                                   'Recordar sesión',
-                                  style: GoogleFonts.openSans(fontSize: 13.5),
+                                  style: TextStyle(fontSize: 13.5),
                                 ),
                               ],
                             ),
@@ -228,9 +227,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                           color: Colors.white,
                                         ),
                                       )
-                                    : Text(
+                                    : const Text(
                                         'LOGIN',
-                                        style: GoogleFonts.openSans(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 2,
                                           color: Colors.white,
@@ -271,7 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.next,
         autofillHints: const [AutofillHints.email],
-        style: GoogleFonts.openSans(fontSize: 13.5),
+        style: const TextStyle(fontSize: 13.5),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(color: Color(0xFFBBBBBB)),
@@ -296,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
         textInputAction: TextInputAction.done,
         autofillHints: const [AutofillHints.password],
         onSubmitted: (_) => _handleLogin(),
-        style: GoogleFonts.openSans(fontSize: 13.5),
+        style: const TextStyle(fontSize: 13.5),
         decoration: InputDecoration(
           hintText: '••••••••',
           border: InputBorder.none,
