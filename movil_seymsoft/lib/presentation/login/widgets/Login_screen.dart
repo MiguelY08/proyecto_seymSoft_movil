@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../auth/cubit/auth_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -225,8 +224,125 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
+<<<<<<< HEAD
                       ],
                     ),
+=======
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                'Papelería Magic',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF1A1A2E),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Center(
+                              child: Text(
+                                'SISTEMA ADMINISTRATIVO',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 2,
+                                  color: Color(0xFF004D77),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 25),
+
+                            // EMAIL
+                            const Text(
+                              'Correo electrónico',
+                              style: TextStyle(fontSize: 13.5),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildInputField(
+                              controller: _emailController,
+                              hint: 'admin@papeleriamagic.com',
+                              icon: Icons.email_outlined,
+                            ),
+
+                            const SizedBox(height: 18),
+
+                            // PASSWORD
+                            const Text(
+                              'Contraseña',
+                              style: TextStyle(fontSize: 13.5),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildPasswordField(),
+
+                            const SizedBox(height: 14),
+
+                            // CHECKBOX
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _rememberSession,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rememberSession = value ?? false;
+                                    });
+                                  },
+                                  activeColor: const Color(0xFF2B5F8E),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Recordar sesión',
+                                  style: TextStyle(fontSize: 13.5),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // BOTÓN LOGIN
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: state.status == AuthStatus.loading
+                                    ? null
+                                    : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1B3D6B),
+                                  elevation: 2,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: state.status == AuthStatus.loading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'LOGIN',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 2,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ],
+>>>>>>> e0711a3a781853125ee87da60ddf315603be744b
                   ),
                 ),
               ),
@@ -253,7 +369,7 @@ class _LoginScreenState extends State<LoginScreen> {
         keyboardType: TextInputType.emailAddress,
         textInputAction: TextInputAction.next,
         autofillHints: const [AutofillHints.email],
-        style: GoogleFonts.openSans(fontSize: 13.5),
+        style: const TextStyle(fontSize: 13.5),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(color: Color(0xFFBBBBBB)),
@@ -277,7 +393,7 @@ class _LoginScreenState extends State<LoginScreen> {
         textInputAction: TextInputAction.done,
         autofillHints: const [AutofillHints.password],
         onSubmitted: (_) => _handleLogin(),
-        style: GoogleFonts.openSans(fontSize: 13.5),
+        style: const TextStyle(fontSize: 13.5),
         decoration: InputDecoration(
           hintText: '••••••••',
           border: InputBorder.none,

@@ -2,13 +2,32 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/dashboard_models.dart';
 
-class KpiCards extends StatelessWidget {
-  const KpiCards({super.key, required this.indicators});
+class _KpiCardsState extends State<KpiCards>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _fade;
+  late Animation<Offset> _slide;
 
-  final DashboardIndicators indicators;
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.18),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _ctrl.forward();
+  }
 
-  String get _sales => '\$${indicators.monthlySales.currentMonthSales.toStringAsFixed(0)}';
-  String get _growth => '${indicators.monthlySales.growthPercentage.toStringAsFixed(1)}% vs el mes pasado';
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,20 +73,71 @@ class _StatCard extends StatelessWidget {
   final String subtitle;
   final Color subtitleColor;
 
+  const _StatCard({
+    required this.icon,
+    required this.iconBg,
+    required this.iconColor,
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.subtitleColor,
+  });
+
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon, color: const Color(0xFF1565C0)),
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
           const SizedBox(height: 12),
-          Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF757575))),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 12, color: Color(0xFF757575)),
+          ),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1A1A2E),
+              height: 1.1,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(subtitle, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: subtitleColor)),
-        ]),
-      );
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: subtitleColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _StockCard extends StatelessWidget {
@@ -75,14 +145,89 @@ class _StockCard extends StatelessWidget {
   final int units;
 
   @override
-  Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-        child: Row(children: [
-          const Icon(Icons.inventory_2_rounded, color: Color(0xFF455A64)),
-          const SizedBox(width: 12),
-          const Expanded(child: Text('Productos en stock')),
-          Text('$units', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFECEFF1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.inventory_2_rounded,
+                  color: Color(0xFF455A64),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Productos en stock',
+                style: TextStyle(fontSize: 13, color: Color(0xFF757575)),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text(
+                  '12 bajo stock',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFE65100),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '1,847',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1A1A2E),
+                  height: 1.0,
+                ),
+              ),
+              Spacer(),
+              Padding(
+                padding: EdgeInsets.only(bottom: 3),
+                child: Text(
+                  'Total artículos',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF757575)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

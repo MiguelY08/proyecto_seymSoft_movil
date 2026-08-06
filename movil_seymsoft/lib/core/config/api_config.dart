@@ -19,8 +19,12 @@ class ApiConfig {
       return _configuredBaseUrl;
     }
 
+<<<<<<< HEAD
     if (kIsWeb) return _webDevProxy;
 
     return _localNetworkBaseUrl;
+=======
+    return kIsWeb ? 'http://127.0.0.1:3000/api' : 'http://10.0.2.2:3000/api';
+>>>>>>> e0711a3a781853125ee87da60ddf315603be744b
   }
 }

@@ -1,6 +1,6 @@
 name: movil_seymsoft
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -12,8 +12,11 @@ dependencies:
   dio: ^5.9.0
   flutter_bloc: ^9.1.1
   flutter_secure_storage: ^9.2.4
+<<<<<<< HEAD
   google_fonts: ^5.0.0
   shared_preferences: ^2.5.3
+=======
+>>>>>>> e0711a3a781853125ee87da60ddf315603be744b
 
 dev_dependencies:
   flutter_test:
