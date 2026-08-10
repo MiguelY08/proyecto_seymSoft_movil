@@ -6,9 +6,11 @@ import 'core/storage/token_storage.dart';
 import 'data/repositories/auth_repository.dart';
 import 'data/repositories/purchases_repository.dart';
 import 'data/repositories/sales_repository.dart';
+import 'data/repositories/notification_repository.dart';
 import 'presentation/auth/cubit/auth_cubit.dart';
 import 'presentation/compras/cubit/purchases_cubit.dart';
 import 'presentation/login/widgets/login_screen.dart';
+import 'presentation/notifications/cubit/notifications_cubit.dart';
 import 'presentation/shared/widgets/nav_bar.dart';
 import 'presentation/ventas/cubit/sales_cubit.dart';
 
@@ -25,6 +27,7 @@ class MyApp extends StatelessWidget {
     );
     final salesRepository = SalesRepository(apiClient);
     final purchasesRepository = PurchasesRepository(apiClient);
+    final notificationRepository = NotificationRepository(apiClient);
 
     return MultiBlocProvider(
       providers: [
@@ -33,6 +36,7 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(create: (_) => SalesCubit(salesRepository)),
         BlocProvider(create: (_) => PurchasesCubit(purchasesRepository)),
+        BlocProvider(create: (_) => NotificationsCubit(notificationRepository)),
       ],
       child: MaterialApp(
         title: 'SeymSoft',

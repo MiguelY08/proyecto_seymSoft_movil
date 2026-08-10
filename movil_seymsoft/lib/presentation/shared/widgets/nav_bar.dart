@@ -3,16 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../routes.dart';
 import '../../dashboard/pages/dashboard.dart';
 import '../../ventas/pages/sales_api_page.dart';
-import '../../login/widgets/Login_screen.dart';
-import '../../../data/repositories/auth_repository.dart';
 import '../../auth/cubit/auth_cubit.dart';
+import '../../notifications/cubit/notifications_cubit.dart';
+import '../../notifications/widgets/notifications_sheet.dart';
 import '../../ventas/pages/ventas_page.dart';
 import '../../compras/pages/purchases_api_page.dart';
 import '../../compras/pages/compras_pages.dart';
 import '../../ventas/widgets/venta_card.dart';
 import 'header.dart';
 import '../../../presentation/configuration/pages/profile_page.dart';
-import '../../auth/cubit/auth_cubit.dart';
 
 // ─────────────────────────────────────────────
 // CONSTANTES DE RUTAS
@@ -67,6 +66,21 @@ class _MainScaffoldState extends State<MainScaffold> {
   // Índice de la pestaña actualmente seleccionada.
   // 0 = Inicio, 1 = Ventas, 2 = Compras, 3 = Ajustes
   int _selectedIndex = 0;
+  String _searchQuery = '';
+  late final NotificationsCubit _notificationsCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _notificationsCubit = context.read<NotificationsCubit>();
+    _notificationsCubit.startPolling();
+  }
+
+  @override
+  void dispose() {
+    _notificationsCubit.stopPolling();
+    super.dispose();
+  }
 
   // Datos de ventas
   // TODO: eliminar estos datos de demostración cuando se retiren los entrypoints
@@ -245,8 +259,8 @@ class _MainScaffoldState extends State<MainScaffold> {
   /// Lista de pantallas en el mismo orden que los ítems del menú.
   List<Widget> get _screens => [
     const DashboardScreen(),
-    const SalesApiPage(),
-    const PurchasesApiPage(),
+    SalesApiPage(searchQuery: _searchQuery),
+    PurchasesApiPage(searchQuery: _searchQuery),
     const ProfilePage(),
   ];
 
@@ -281,12 +295,61 @@ class _MainScaffoldState extends State<MainScaffold> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _searchQuery = '';
     });
+  }
+
+  Future<void> _openSearch() async {
+    if (_selectedIndex != 1 && _selectedIndex != 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('El buscador está disponible en Ventas y Compras'),
+        ),
+      );
+      return;
+    }
+
+    final controller = TextEditingController(text: _searchQuery);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(_selectedIndex == 1 ? 'Buscar ventas' : 'Buscar compras'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            hintText: _selectedIndex == 1
+                ? 'ID, cliente, vendedor o estado'
+                : 'Factura, proveedor o estado',
+            prefixIcon: const Icon(Icons.search),
+            border: const OutlineInputBorder(),
+          ),
+          onSubmitted: (value) => Navigator.pop(dialogContext, value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, ''),
+            child: const Text('Limpiar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, controller.text),
+            child: const Text('Buscar'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+
+    if (result != null && mounted) {
+      setState(() => _searchQuery = result.trim());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<AuthCubit>().state.profile;
+    final unreadCount = context.watch<NotificationsCubit>().state.unreadCount;
 
     return Scaffold(
       // Encabezado común con nombre, rol y accesos rápidos
@@ -295,14 +358,21 @@ class _MainScaffoldState extends State<MainScaffold> {
           VentasHeader(
             nombreUsuario: profile?.user.fullName ?? 'Administrador',
             rol: profile?.role.name ?? 'Administrator',
-            onSearch: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Buscar - Próximamente')),
-              );
-            },
+            notificationCount: unreadCount,
+            onSearch: _openSearch,
             onNotifications: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notificaciones - Próximamente')),
+              context.read<NotificationsCubit>().load();
+              showModalBottomSheet<void>(
+                context: context,
+                isScrollControlled: true,
+                useSafeArea: true,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+                ),
+                builder: (_) => BlocProvider.value(
+                  value: context.read<NotificationsCubit>(),
+                  child: const NotificationsSheet(),
+                ),
               );
             },
           ),

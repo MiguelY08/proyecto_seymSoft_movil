@@ -2,35 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/dashboard_models.dart';
 
-class _KpiCardsState extends State<KpiCards>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _fade;
-  late Animation<Offset> _slide;
+class KpiCards extends StatelessWidget {
+  const KpiCards({super.key, required this.indicators});
 
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
-    _slide = Tween<Offset>(
-      begin: const Offset(0, 0.18),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
-    _ctrl.forward();
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
+  final DashboardIndicators indicators;
 
   @override
   Widget build(BuildContext context) {
+    final growth = indicators.monthlySales.growthPercentage;
     return Column(
       children: [
         Row(
@@ -39,9 +18,10 @@ class _KpiCardsState extends State<KpiCards>
               child: _StatCard(
                 icon: Icons.point_of_sale_rounded,
                 title: 'Ventas del mes',
-                value: _sales,
-                subtitle: _growth,
-                subtitleColor: indicators.monthlySales.growthPercentage >= 0
+                value: _money(indicators.monthlySales.currentMonthSales),
+                subtitle:
+                    '${growth >= 0 ? '+' : ''}${growth.toStringAsFixed(1)}%',
+                color: growth >= 0
                     ? const Color(0xFF2E7D32)
                     : const Color(0xFFC62828),
               ),
@@ -53,35 +33,40 @@ class _KpiCardsState extends State<KpiCards>
                 title: 'Clientes activos',
                 value: '${indicators.activeClients}',
                 subtitle: 'Registrados activos',
-                subtitleColor: const Color(0xFF00695C),
+                color: const Color(0xFF00695C),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _StockCard(units: indicators.stock.totalUnitsInStock),
+        _StatCard(
+          icon: Icons.inventory_2_rounded,
+          title: 'Productos en stock',
+          value: '${indicators.stock.totalUnitsInStock}',
+          subtitle: 'Total de unidades',
+          color: const Color(0xFF455A64),
+        ),
       ],
     );
   }
+
+  String _money(double value) => '\$${value.toStringAsFixed(0)}';
 }
 
 class _StatCard extends StatelessWidget {
-  const _StatCard({required this.icon, required this.title, required this.value, required this.subtitle, required this.subtitleColor});
+  const _StatCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.color,
+  });
+
   final IconData icon;
   final String title;
   final String value;
   final String subtitle;
-  final Color subtitleColor;
-
-  const _StatCard({
-    required this.icon,
-    required this.iconBg,
-    required this.iconColor,
-    required this.title,
-    required this.value,
-    required this.subtitle,
-    required this.subtitleColor,
-  });
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -101,16 +86,8 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: iconColor, size: 20),
-          ),
-          const SizedBox(height: 12),
+          Icon(icon, color: color),
+          const SizedBox(height: 10),
           Text(
             title,
             style: const TextStyle(fontSize: 12, color: Color(0xFF757575)),
@@ -118,113 +95,15 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A2E),
-              height: 1.1,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 4),
           Text(
             subtitle,
             style: TextStyle(
               fontSize: 11,
+              color: color,
               fontWeight: FontWeight.w600,
-              color: subtitleColor,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StockCard extends StatelessWidget {
-  const _StockCard({required this.units});
-  final int units;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFECEFF1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.inventory_2_rounded,
-                  color: Color(0xFF455A64),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'Productos en stock',
-                style: TextStyle(fontSize: 13, color: Color(0xFF757575)),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3E0),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  '12 bajo stock',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFE65100),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '1,847',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF1A1A2E),
-                  height: 1.0,
-                ),
-              ),
-              Spacer(),
-              Padding(
-                padding: EdgeInsets.only(bottom: 3),
-                child: Text(
-                  'Total artículos',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF757575)),
-                ),
-              ),
-            ],
           ),
         ],
       ),

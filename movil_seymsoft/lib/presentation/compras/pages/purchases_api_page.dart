@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../data/models/purchase_models.dart';
 import '../cubit/purchases_cubit.dart';
 import '../widgets/purchase_api_card.dart';
 
 class PurchasesApiPage extends StatefulWidget {
-  const PurchasesApiPage({super.key});
+  const PurchasesApiPage({super.key, this.searchQuery = ''});
+
+  final String searchQuery;
 
   @override
   State<PurchasesApiPage> createState() => _PurchasesApiPageState();
@@ -34,6 +37,7 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
         ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
       },
       builder: (context, state) {
+        final filteredPurchases = _filterPurchases(state.purchases);
         return Container(
           color: const Color(0xFFF5F5F5),
           child: Column(
@@ -54,8 +58,9 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Mostrando ${state.purchases.length} de '
-                      '${state.total} compras',
+                      widget.searchQuery.isEmpty
+                          ? 'Mostrando ${state.purchases.length} de ${state.total} compras'
+                          : '${filteredPurchases.length} resultado(s) para "${widget.searchQuery}"',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF9E9E9E),
@@ -64,7 +69,7 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
                   ],
                 ),
               ),
-              Expanded(child: _buildContent(context, state)),
+              Expanded(child: _buildContent(context, state, filteredPurchases)),
             ],
           ),
         );
@@ -72,7 +77,11 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
     );
   }
 
-  Widget _buildContent(BuildContext context, PurchasesState state) {
+  Widget _buildContent(
+    BuildContext context,
+    PurchasesState state,
+    List<Purchase> filteredPurchases,
+  ) {
     if (state.status == PurchasesStatus.loading && state.purchases.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -91,14 +100,20 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
       );
     }
 
+    if (filteredPurchases.isEmpty) {
+      return const _Message(text: 'No se encontraron compras con ese criterio');
+    }
+
     return RefreshIndicator(
       onRefresh: () =>
           context.read<PurchasesCubit>().loadPurchases(refresh: true),
       child: ListView.builder(
         padding: const EdgeInsets.only(bottom: 16),
-        itemCount: state.purchases.length + (state.hasNextPage ? 1 : 0),
+        itemCount:
+            filteredPurchases.length +
+            (widget.searchQuery.isEmpty && state.hasNextPage ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == state.purchases.length) {
+          if (index == filteredPurchases.length) {
             return Padding(
               padding: const EdgeInsets.all(16),
               child: SizedBox(
@@ -119,7 +134,7 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
             );
           }
 
-          final summary = state.purchases[index];
+          final summary = filteredPurchases[index];
           final purchase = state.details[summary.id] ?? summary;
           final detailQuantity = purchase.details.fold<int>(
             0,
@@ -147,6 +162,22 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
     );
   }
 
+  List<Purchase> _filterPurchases(List<Purchase> purchases) {
+    final query = widget.searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return purchases;
+    return purchases
+        .where((purchase) {
+          final fields = [
+            purchase.id.toString(),
+            purchase.invoiceNumber,
+            purchase.providerName,
+            purchase.status,
+          ];
+          return fields.any((field) => field.toLowerCase().contains(query));
+        })
+        .toList(growable: false);
+  }
+
   String _formatDate(DateTime date) {
     String twoDigits(int value) => value.toString().padLeft(2, '0');
     return '${twoDigits(date.day)}/${twoDigits(date.month)}/${date.year}';
@@ -166,10 +197,10 @@ class _PurchasesApiPageState extends State<PurchasesApiPage> {
 }
 
 class _Message extends StatelessWidget {
-  const _Message({required this.text, required this.onPressed});
+  const _Message({required this.text, this.onPressed});
 
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -178,8 +209,13 @@ class _Message extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(text, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          OutlinedButton(onPressed: onPressed, child: const Text('Reintentar')),
+          if (onPressed != null) ...[
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: onPressed,
+              child: const Text('Reintentar'),
+            ),
+          ],
         ],
       ),
     );
