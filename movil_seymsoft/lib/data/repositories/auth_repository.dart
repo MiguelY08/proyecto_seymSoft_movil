@@ -1,5 +1,6 @@
-import 'package:dio/dio.dart';
+﻿import 'package:dio/dio.dart';
 
+import '../../core/config/api_config.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/token_storage.dart';
 import '../models/auth_models.dart';
@@ -8,8 +9,8 @@ class AuthRepository {
   const AuthRepository({
     required ApiClient apiClient,
     required TokenStorage tokenStorage,
-  }) : _apiClient = apiClient,
-       _tokenStorage = tokenStorage;
+  })  : _apiClient = apiClient,
+        _tokenStorage = tokenStorage;
 
   final ApiClient _apiClient;
   final TokenStorage _tokenStorage;
@@ -25,6 +26,7 @@ class AuthRepository {
         data: {'email': email, 'password': password},
         options: Options(extra: {'skipAuth': true}),
       );
+
       final data = response.data?['data'] as Map<String, dynamic>?;
       if (data == null) {
         throw const AuthException('Respuesta inválida del servidor');
@@ -46,6 +48,7 @@ class AuthRepository {
         refreshToken: refreshToken,
         persist: rememberSession,
       );
+
       return profile;
     } on DioException catch (error) {
       throw AuthException(_messageFromDio(error));
@@ -98,6 +101,38 @@ class AuthRepository {
       }
     } finally {
       await _tokenStorage.clear();
+    }
+  }
+
+  static Future<bool> refreshSession(TokenStorage tokenStorage, {Dio? client}) async {
+    final refreshToken = await tokenStorage.getRefreshToken();
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return false;
+    }
+
+    try {
+      final dio = client ?? Dio(BaseOptions(baseUrl: ApiConfig.baseUrl));
+      final response = await dio.post<Map<String, dynamic>>(
+        '/auth/refresh',
+        data: {'refreshToken': refreshToken},
+        options: Options(extra: {'skipAuth': true}),
+      );
+
+      final data = response.data?['data'] as Map<String, dynamic>?;
+      final accessToken = data?['accessToken'] as String?;
+      final newRefreshToken = data?['refreshToken'] as String?;
+      if (accessToken == null || newRefreshToken == null) {
+        return false;
+      }
+
+      await tokenStorage.saveTokens(
+        accessToken: accessToken,
+        refreshToken: newRefreshToken,
+        persist: true,
+      );
+      return true;
+    } on DioException {
+      return false;
     }
   }
 

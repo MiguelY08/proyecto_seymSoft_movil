@@ -7,7 +7,9 @@ import '../widgets/venta_card.dart';
 import 'ventas_page.dart';
 
 class SalesApiPage extends StatefulWidget {
-  const SalesApiPage({super.key});
+  const SalesApiPage({super.key, this.searchQuery = ''});
+
+  final String searchQuery;
 
   @override
   State<SalesApiPage> createState() => _SalesApiPageState();
@@ -36,6 +38,7 @@ class _SalesApiPageState extends State<SalesApiPage> {
         ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
       },
       builder: (context, state) {
+        final filteredSales = _filterSales(state.sales);
         return Container(
           color: const Color(0xFFF5F5F5),
           child: Column(
@@ -57,7 +60,9 @@ class _SalesApiPageState extends State<SalesApiPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Mostrando ${state.sales.length} de ${state.total} ventas',
+                      widget.searchQuery.isEmpty
+                          ? 'Mostrando ${state.sales.length} de ${state.total} ventas'
+                          : '${filteredSales.length} resultado(s) para "${widget.searchQuery}"',
                       style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF9E9E9E),
@@ -66,7 +71,7 @@ class _SalesApiPageState extends State<SalesApiPage> {
                   ],
                 ),
               ),
-              Expanded(child: _buildContent(context, state)),
+              Expanded(child: _buildContent(context, state, filteredSales)),
             ],
           ),
         );
@@ -74,7 +79,11 @@ class _SalesApiPageState extends State<SalesApiPage> {
     );
   }
 
-  Widget _buildContent(BuildContext context, SalesState state) {
+  Widget _buildContent(
+    BuildContext context,
+    SalesState state,
+    List<Sale> filteredSales,
+  ) {
     if (state.status == SalesStatus.loading && state.sales.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -95,13 +104,21 @@ class _SalesApiPageState extends State<SalesApiPage> {
       );
     }
 
+    if (filteredSales.isEmpty) {
+      return const _SalesMessage(
+        message: 'No se encontraron ventas con ese criterio',
+      );
+    }
+
     return RefreshIndicator(
       onRefresh: () => context.read<SalesCubit>().loadSales(refresh: true),
       child: ListView.builder(
         padding: const EdgeInsets.only(bottom: 16),
-        itemCount: state.sales.length + (state.hasNextPage ? 1 : 0),
+        itemCount:
+            filteredSales.length +
+            (widget.searchQuery.isEmpty && state.hasNextPage ? 1 : 0),
         itemBuilder: (context, index) {
-          if (index == state.sales.length) {
+          if (index == filteredSales.length) {
             return Padding(
               padding: const EdgeInsets.all(16),
               child: SizedBox(
@@ -122,7 +139,7 @@ class _SalesApiPageState extends State<SalesApiPage> {
             );
           }
 
-          final summary = state.sales[index];
+          final summary = filteredSales[index];
           final sale = state.details[summary.id] ?? summary;
           return _SaleCardAdapter(
             sale: sale,
@@ -133,6 +150,23 @@ class _SalesApiPageState extends State<SalesApiPage> {
         },
       ),
     );
+  }
+
+  List<Sale> _filterSales(List<Sale> sales) {
+    final query = widget.searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return sales;
+    return sales
+        .where((sale) {
+          final fields = [
+            sale.id.toString(),
+            sale.customerName,
+            sale.employeeName,
+            sale.statusName,
+            sale.paymentMethodsLabel,
+          ];
+          return fields.any((field) => field.toLowerCase().contains(query));
+        })
+        .toList(growable: false);
   }
 }
 
@@ -201,13 +235,13 @@ class _SaleCardAdapter extends StatelessWidget {
 class _SalesMessage extends StatelessWidget {
   const _SalesMessage({
     required this.message,
-    required this.buttonLabel,
-    required this.onPressed,
+    this.buttonLabel,
+    this.onPressed,
   });
 
   final String message;
-  final String buttonLabel;
-  final VoidCallback onPressed;
+  final String? buttonLabel;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -216,8 +250,10 @@ class _SalesMessage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          OutlinedButton(onPressed: onPressed, child: Text(buttonLabel)),
+          if (onPressed != null && buttonLabel != null) ...[
+            const SizedBox(height: 12),
+            OutlinedButton(onPressed: onPressed, child: Text(buttonLabel!)),
+          ],
         ],
       ),
     );

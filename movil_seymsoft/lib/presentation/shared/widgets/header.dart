@@ -7,6 +7,7 @@ class VentasHeader extends StatelessWidget {
   final String rol;
   final VoidCallback? onSearch;
   final VoidCallback? onNotifications;
+  final int notificationCount;
 
   const VentasHeader({
     super.key,
@@ -14,6 +15,7 @@ class VentasHeader extends StatelessWidget {
     required this.rol,
     this.onSearch,
     this.onNotifications,
+    this.notificationCount = 0,
   });
 
   @override
@@ -68,14 +70,15 @@ class VentasHeader extends StatelessWidget {
           ),
 
           // — Botones acción
-          _HeaderIconButton(
-            icon: Icons.search_rounded,
-            onTap: onSearch,
-          ),
+          _HeaderIconButton(icon: Icons.search_rounded, onTap: onSearch),
           const SizedBox(width: 8),
-          _HeaderIconButton(
-            icon: Icons.notifications_none_rounded,
-            onTap: onNotifications,
+          Badge(
+            isLabelVisible: notificationCount > 0,
+            label: Text(notificationCount > 99 ? '99+' : '$notificationCount'),
+            child: _HeaderIconButton(
+              icon: Icons.notifications_none_rounded,
+              onTap: onNotifications,
+            ),
           ),
         ],
       ),
@@ -101,11 +104,7 @@ class _HeaderIconButton extends StatelessWidget {
           color: const Color(0xFFF0F0F0),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(
-          icon,
-          size: 22,
-          color: const Color(0xFF666666),
-        ),
+        child: Icon(icon, size: 22, color: const Color(0xFF666666)),
       ),
     );
   }

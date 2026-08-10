@@ -1,25 +1,32 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TokenStorage {
-  TokenStorage({
-    FlutterSecureStorage secureStorage = const FlutterSecureStorage(),
-  }) : _secureStorage = secureStorage;
+  TokenStorage({FlutterSecureStorage? secureStorage})
+      : _secureStorage = secureStorage ?? const FlutterSecureStorage();
 
   static const _accessTokenKey = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
 
   final FlutterSecureStorage _secureStorage;
 
-  String? _accessToken;
-  String? _refreshToken;
+  String? _sessionAccessToken;
+  void Function()? _onClearCallback;
   bool _persistTokens = true;
 
+  /// Registra un callback que será invocado cuando `clear()` sea llamado.
+  void registerOnClear(void Function()? callback) {
+    _onClearCallback = callback;
+  }
+
   Future<String?> getAccessToken() async {
-    return _accessToken ?? await _secureStorage.read(key: _accessTokenKey);
+    if (_sessionAccessToken != null) return _sessionAccessToken;
+    final token = await _secureStorage.read(key: _accessTokenKey);
+    _sessionAccessToken = token;
+    return token;
   }
 
   Future<String?> getRefreshToken() async {
-    return _refreshToken ?? await _secureStorage.read(key: _refreshTokenKey);
+    return await _secureStorage.read(key: _refreshTokenKey);
   }
 
   Future<void> saveTokens({
@@ -27,8 +34,7 @@ class TokenStorage {
     required String refreshToken,
     required bool persist,
   }) async {
-    _accessToken = accessToken;
-    _refreshToken = refreshToken;
+    _sessionAccessToken = accessToken;
     _persistTokens = persist;
 
     if (persist) {
@@ -40,17 +46,21 @@ class TokenStorage {
   }
 
   Future<void> saveAccessToken(String accessToken) async {
-    _accessToken = accessToken;
+    _sessionAccessToken = accessToken;
     if (_persistTokens) {
       await _secureStorage.write(key: _accessTokenKey, value: accessToken);
     }
   }
 
   Future<void> clear() async {
-    _accessToken = null;
-    _refreshToken = null;
+    _sessionAccessToken = null;
     _persistTokens = true;
     await _deletePersistedTokens();
+    try {
+      _onClearCallback?.call();
+    } catch (_) {
+      // ignore callback errors
+    }
   }
 
   Future<void> _deletePersistedTokens() async {
