@@ -138,27 +138,8 @@ class _PurchaseApiCardState extends State<PurchaseApiCard> {
           ),
           const SizedBox(height: 10),
           _InfoField(label: 'Fecha', value: widget.date),
-          const SizedBox(height: 14),
-          const Divider(height: 1, color: Color(0xFFE5E5EA)),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'TOTAL',
-                style: TextStyle(fontSize: 12, color: Color(0xFF8E8E93)),
-              ),
-              Text(
-                widget.total,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
           if (_expanded) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             if (widget.isLoadingDetail)
               const Center(
                 child: Padding(
@@ -180,7 +161,15 @@ class _PurchaseApiCardState extends State<PurchaseApiCard> {
                 ],
               )
             else
-              _PurchaseDetails(products: widget.details),
+              _PurchaseDetails(products: widget.details, total: widget.total),
+          ],
+          if (!_expanded ||
+              widget.isLoadingDetail ||
+              widget.detailError != null) ...[
+            const SizedBox(height: 14),
+            const Divider(height: 1, color: Color(0xFFE5E5EA)),
+            const SizedBox(height: 12),
+            _TotalRow(total: widget.total),
           ],
         ],
       ),
@@ -189,77 +178,166 @@ class _PurchaseApiCardState extends State<PurchaseApiCard> {
 }
 
 class _PurchaseDetails extends StatelessWidget {
-  const _PurchaseDetails({required this.products});
+  const _PurchaseDetails({required this.products, required this.total});
 
   final List<PurchaseProduct> products;
+  final String total;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final subtotal = products.fold<double>(
+      0,
+      (sum, product) => sum + product.grossSubtotal,
+    );
+    final iva = products.fold<double>(
+      0,
+      (sum, product) => sum + product.ivaSubtotal,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE4E9EF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'PRODUCTOS',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF8E8E93),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...products.map(
+            (product) => Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE2E7ED)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.025),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Código: ${product.barcode}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF8E8E93),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _InfoField(
+                          label: 'Cantidad',
+                          value: '${product.quantity}',
+                        ),
+                      ),
+                      Expanded(
+                        child: _InfoField(
+                          label: 'Valor unitario',
+                          value: _money(product.netUnitPrice),
+                        ),
+                      ),
+                      Expanded(
+                        child: _InfoField(
+                          label: 'Subtotal',
+                          value: _money(product.netSubtotal),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Base: ${_money(product.grossSubtotal)} · '
+                    'IVA ${product.taxPercentage.toStringAsFixed(0)}%: '
+                    '${_money(product.ivaSubtotal)}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF8E8E93),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Divider(height: 1, color: Color(0xFFE0E0E0)),
+          const SizedBox(height: 12),
+          _MoneyRow(label: 'SUBTOTAL', value: _money(subtotal)),
+          const SizedBox(height: 8),
+          _MoneyRow(label: 'IVA', value: _money(iva)),
+          const SizedBox(height: 8),
+          const Divider(height: 1, color: Color(0xFFE0E0E0)),
+          const SizedBox(height: 8),
+          _MoneyRow(label: 'TOTAL', value: total, emphasized: true),
+        ],
+      ),
+    );
+  }
+}
+
+class _TotalRow extends StatelessWidget {
+  const _TotalRow({required this.total});
+  final String total;
+
+  @override
+  Widget build(BuildContext context) {
+    return _MoneyRow(label: 'TOTAL', value: total, emphasized: true);
+  }
+}
+
+class _MoneyRow extends StatelessWidget {
+  const _MoneyRow({
+    required this.label,
+    required this.value,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final String value;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'PRODUCTOS',
-          style: TextStyle(
+        Text(
+          label,
+          style: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
             color: Color(0xFF8E8E93),
+            letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(height: 12),
-        ...products.map(
-          (product) => Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'Código: ${product.barcode} · Lote: ${product.batchCode}',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF8E8E93),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _InfoField(
-                        label: 'Cantidad',
-                        value: '${product.quantity}',
-                      ),
-                    ),
-                    Expanded(
-                      child: _InfoField(
-                        label: 'Valor unitario',
-                        value: _money(product.netUnitPrice),
-                      ),
-                    ),
-                    Expanded(
-                      child: _InfoField(
-                        label: 'Subtotal',
-                        value: _money(product.netSubtotal),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Base: ${_money(product.grossSubtotal)} · '
-                  'IVA ${product.taxPercentage.toStringAsFixed(0)}%: '
-                  '${_money(product.ivaSubtotal)}',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF8E8E93),
-                  ),
-                ),
-              ],
-            ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: emphasized ? 18 : 14,
+            fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
+            color: const Color(0xFF1C1C1E),
           ),
         ),
       ],

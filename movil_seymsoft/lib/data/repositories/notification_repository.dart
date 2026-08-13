@@ -53,6 +53,22 @@ class NotificationRepository {
     }
   }
 
+  Future<void> deleteNotification(int id) async {
+    try {
+      await _apiClient.dio.delete<void>('/notifications/$id');
+    } on DioException catch (error) {
+      throw AuthException(_message(error));
+    }
+  }
+
+  Future<void> deleteAllNotifications() async {
+    try {
+      await _apiClient.dio.delete<void>('/notifications/all');
+    } on DioException catch (error) {
+      throw AuthException(_message(error));
+    }
+  }
+
   String _message(DioException error) {
     final body = error.response?.data;
     if (body is Map<String, dynamic> && body['message'] is String) {

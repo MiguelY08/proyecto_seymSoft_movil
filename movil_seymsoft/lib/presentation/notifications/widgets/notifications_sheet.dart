@@ -28,13 +28,42 @@ class NotificationsSheet extends StatelessWidget {
                     ),
                   ),
                   BlocBuilder<NotificationsCubit, NotificationsState>(
-                    builder: (context, state) => TextButton(
-                      onPressed: state.unreadCount == 0
-                          ? null
-                          : () => context
-                                .read<NotificationsCubit>()
-                                .markAllAsRead(),
-                      child: const Text('Marcar todas'),
+                    builder: (context, state) => PopupMenuButton<String>(
+                      tooltip: 'Acciones de notificaciones',
+                      enabled: state.notifications.isNotEmpty,
+                      onSelected: (action) {
+                        if (action == 'read') {
+                          context.read<NotificationsCubit>().markAllAsRead();
+                        } else if (action == 'delete') {
+                          _confirmDeleteAll(context);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'read',
+                          enabled: state.unreadCount > 0,
+                          child: const ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Icon(Icons.done_all_rounded),
+                            title: Text('Marcar todas como leídas'),
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            leading: Icon(
+                              Icons.delete_sweep_outlined,
+                              color: Color(0xFFC62828),
+                            ),
+                            title: Text(
+                              'Eliminar todas',
+                              style: TextStyle(color: Color(0xFFC62828)),
+                            ),
+                          ),
+                        ),
+                      ],
+                      icon: const Icon(Icons.more_vert_rounded),
                     ),
                   ),
                   IconButton(
@@ -85,6 +114,46 @@ class NotificationsSheet extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _confirmDeleteAll(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Eliminar todas las notificaciones'),
+        content: const Text(
+          'Esta acción eliminará permanentemente todas las notificaciones. '
+          '¿Deseas continuar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Eliminar todas'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await context.read<NotificationsCubit>().deleteAllNotifications();
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No fue posible eliminar las notificaciones'),
+          ),
+        );
+      }
+    }
+  }
 }
 
 class _NotificationTile extends StatelessWidget {
@@ -114,9 +183,22 @@ class _NotificationTile extends StatelessWidget {
           ),
         ),
         isThreeLine: true,
-        trailing: notification.isRead
-            ? null
-            : const Icon(Icons.circle, size: 9, color: Color(0xFF1565C0)),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!notification.isRead)
+              const Padding(
+                padding: EdgeInsets.only(right: 4),
+                child: Icon(Icons.circle, size: 9, color: Color(0xFF1565C0)),
+              ),
+            IconButton(
+              tooltip: 'Eliminar notificación',
+              icon: const Icon(Icons.delete_outline_rounded),
+              color: const Color(0xFFC62828),
+              onPressed: () => _confirmDelete(context),
+            ),
+          ],
+        ),
         onTap: () async {
           try {
             await context.read<NotificationsCubit>().markAsRead(notification);
@@ -132,6 +214,43 @@ class _NotificationTile extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Eliminar notificación'),
+        content: const Text(
+          '¿Deseas eliminar esta notificación permanentemente?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFC62828),
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await context.read<NotificationsCubit>().deleteNotification(notification);
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No fue posible eliminarla')),
+        );
+      }
+    }
   }
 
   IconData get _icon {
