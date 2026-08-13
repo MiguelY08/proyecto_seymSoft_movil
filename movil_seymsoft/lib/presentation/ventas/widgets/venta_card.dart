@@ -164,22 +164,8 @@ class _VentaCardState extends State<VentaCard> {
 
             const SizedBox(height: 12),
 
-            // — Fila: Cliente (y Vendedor si existe)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _InfoField(label: 'Cliente', value: widget.cliente),
-                ),
-                if (widget.vendedor != null)
-                  Expanded(
-                    child: _InfoField(
-                      label: 'Vendedor',
-                      value: widget.vendedor!,
-                    ),
-                  ),
-              ],
-            ),
+            // — Cliente. El vendedor se muestra solo en el detalle expandido.
+            _InfoField(label: 'Cliente', value: widget.cliente),
 
             const SizedBox(height: 10),
 
@@ -198,39 +184,9 @@ class _VentaCardState extends State<VentaCard> {
               ],
             ),
 
-            const SizedBox(height: 14),
-
-            const Divider(height: 1, color: Color(0xFFF0F0F0)),
-
-            const SizedBox(height: 12),
-
-            // — Total
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'TOTAL',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF9E9E9E),
-                    letterSpacing: 0.8,
-                  ),
-                ),
-                Text(
-                  '\$ ${_formatTotal(widget.total)}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF1A1A2E),
-                  ),
-                ),
-              ],
-            ),
-
             // — Detalle expandido
             if (_expanded) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               if (widget.isLoadingDetail)
                 const Center(
                   child: Padding(
@@ -258,6 +214,35 @@ class _VentaCardState extends State<VentaCard> {
                     iva: widget.iva,
                   ),
                 ),
+            ],
+            if (!_expanded ||
+                widget.isLoadingDetail ||
+                widget.detailError != null) ...[
+              const SizedBox(height: 14),
+              const Divider(height: 1, color: Color(0xFFF0F0F0)),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'TOTAL',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF9E9E9E),
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                  Text(
+                    '\$ ${_formatTotal(widget.total)}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1A1A2E),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ],
         ),

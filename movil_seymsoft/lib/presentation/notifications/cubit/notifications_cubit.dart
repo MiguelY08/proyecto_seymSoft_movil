@@ -122,6 +122,28 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     );
   }
 
+  Future<void> deleteNotification(AppNotification notification) async {
+    await _repository.deleteNotification(notification.id);
+    emit(
+      state.copyWith(
+        notifications: state.notifications
+            .where((item) => item.id != notification.id)
+            .toList(growable: false),
+        unreadCount: !notification.isRead && state.unreadCount > 0
+            ? state.unreadCount - 1
+            : state.unreadCount,
+      ),
+    );
+  }
+
+  Future<void> deleteAllNotifications() async {
+    if (state.notifications.isEmpty) return;
+    await _repository.deleteAllNotifications();
+    emit(
+      state.copyWith(notifications: const [], unreadCount: 0, clearError: true),
+    );
+  }
+
   @override
   Future<void> close() async {
     _timer?.cancel();

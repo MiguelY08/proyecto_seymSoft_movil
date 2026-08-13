@@ -21,8 +21,13 @@ class VentaDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE4E9EF)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,7 +46,7 @@ class VentaDetails extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: venta.productos.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 16),
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final producto = venta.productos[index];
               return _ProductoItem(producto: producto);
@@ -102,53 +107,69 @@ class _ProductoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          producto.nombre,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1A1A2E),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE2E7ED)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
-        ),
-        if (producto.descripcion.isNotEmpty && producto.descripcion != '-')
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Text(
-              producto.descripcion,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            producto.nombre,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1A1A2E),
             ),
           ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: _InfoField(
-                label: 'Cantidad',
-                value: '${producto.cantidad}',
+          if (producto.descripcion.isNotEmpty && producto.descripcion != '-')
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                producto.descripcion,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF9E9E9E)),
               ),
             ),
-            Expanded(
-              flex: 3,
-              child: _InfoField(
-                label: 'Valor Unitario',
-                value: _formatMoneda(producto.valorUnitario),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: _InfoField(
+                  label: 'Cantidad',
+                  value: '${producto.cantidad}',
+                ),
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: _InfoField(
-                label: 'Total',
-                value: _formatMoneda(producto.total),
-                isBold: true,
+              Expanded(
+                flex: 3,
+                child: _InfoField(
+                  label: 'Valor Unitario',
+                  value: _formatMoneda(producto.valorUnitario),
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+              Expanded(
+                flex: 2,
+                child: _InfoField(
+                  label: 'Total',
+                  value: _formatMoneda(producto.total),
+                  isBold: true,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
